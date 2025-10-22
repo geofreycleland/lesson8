@@ -261,19 +261,18 @@ header{
       <div class="scenario-wrap">
         <div class="scenario-label">Scenario</div>
         <p class="scenario" id="scenario">
-KonaTech runs continuous vulnerability scanning and imports vendor SBOMs. This week’s rollup includes exploitable CVEs,
-a public cloud storage misconfiguration, legacy/EOL infrastructure, and internet-exposed assets.
+KonaTech’s SOC ingests weekly vulnerability rollups that merge: (1) internal scanner results, (2) vendor SBOM deltas, and (3) threat intelligence (CTI) from both an open-source feed and a proprietary feed, plus ad-hoc OSINT checks (Shodan, forum chatter). This week’s bundle includes exploitable CVEs on customer-facing systems, a public cloud storage misconfiguration exposing PII, and aging EOL infrastructure isolated behind segmentation.
 
-Priorities from leadership:
-• Minimize data exposure risk, especially from public cloud storage. 
-• Keep customer-facing services available (tight maintenance windows).
-• Use compensating controls when patching is not immediately feasible.
-• Close out items only after verification via re-scan.
+Leadership priorities:
+• Minimize data exposure risk (cloud storage/PII). 
+• Maintain uptime for customer-facing services (tight maintenance windows).
+• Use compensating controls where patching isn’t immediately feasible.
+• Close items only after verification via re-scan.
 
 Your tasks:
-1) Triage findings by urgency using exploit maturity, exposure, and business impact.
-2) Choose an appropriate scan type (credentialed vs. non-credentialed) and cadence per asset, balancing depth and practicality.
-        </p>
+1) Triage findings using exploit maturity, exposure, and business impact (guided by CTI/OSINT context).
+2) Pick scan type (credentialed vs non-credentialed) and cadence per asset, considering maintenance windows and the need to verify fixes via re-scan.
+</p>
       </div>
       <!-- removed "Intermediate" / time pill per request -->
     </section>
@@ -283,8 +282,10 @@ Your tasks:
       <div class="scenario-label" style="background:#e9f3ff;border-color:#cfe0ff;color:#1b4cb8">PBQ 1</div>
       <h2 style="margin:8px 0 2px">Drag each finding into the correct lane</h2>
       <p class="muted" style="margin:0 0 8px">
-        Lanes: <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), <b>Schedule</b> (next standard window). Consider exploitability, exposure, business impact, and maintenance windows.
-      </p>
+  Use the Scenario’s CTI/OSINT context and leadership priorities to sort each card into:
+  <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), or <b>Schedule</b> (next standard window).
+  Prioritize active exploitation, external exposure (PII/customer-facing), and feasible change windows; remember <i>closure requires re-scan</i>.
+</p>
       <div class="lanes" style="margin-top:8px">
         <div class="lane" data-lane="NOW"><h4>Fix Now</h4></div>
         <div class="lane" data-lane="NEXT"><h4>Fix Next</h4></div>
@@ -299,9 +300,10 @@ Your tasks:
     <section class="card" id="pbq4">
       <div class="scenario-label" style="background:#e9f3ff;border-color:#cfe0ff;color:#1b4cb8">PBQ 2</div>
       <h2 style="margin:8px 0 2px">Design the scan strategy</h2>
-      <p class="muted" style="margin:0 0 8px">
-        Choose <b>scan type</b> and <b>cadence</b> per asset. Use <b>credentialed</b> scans for deeper configuration/patch validation and <b>non-credentialed</b> for the external “attacker’s-eye” view. Verification via <b>re-scan</b> is required for closure.
-      </p>
+    <p class="muted" style="margin:0 0 8px">
+  Using the Scenario’s constraints (tight maintenance windows, external exposure, need to verify via re-scan), choose a <b>scan type</b> and <b>cadence</b> for each asset.
+  Prefer <b>credentialed</b> scans to validate patches/configs; use <b>non-credentialed</b> for the attacker’s-eye surface on internet-facing systems.
+</p>
       <div style="overflow-x:auto">
         <table>
           <thead>
@@ -328,16 +330,41 @@ const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
 
 /* =================== PBQ 1: Vulnerability Triage (Kanban) =================== */
 const FINDINGS = [
-  { id:'F1', title:'Public cloud bucket allows listing + read of PII', tags:['Cloud','Exposure','Misconfig'], meta:'Impact: High • Exposure: Public • Exploit maturity: Live', expect:'NOW',
-    why:'Public data exposure represents immediate risk; apply bucket-level public access block and least-privilege policy now, then verify via re-scan.'},
-  { id:'F2', title:'DB-01 — Critical RCE (CVSS 9.8) with weaponized exploit', tags:['Server','Critical','RCE'], meta:'Impact: High • Exploit: Known in wild', expect:'NOW',
-    why:'High-value system + weaponized exploit → emergency change: patch ASAP or apply compensating controls (WAF/IPS isolation) until patched.'},
-  { id:'F3', title:'HR-LAP12 — High-sev CVE (8.1), PoC only, standard user', tags:['Endpoint','PoC'], meta:'Impact: Low • Exploit: Proof-of-Concept', expect:'NEXT',
-    why:'Lower business impact and only PoC → remediate within sprint; confirm via credentialed endpoint scan.'},
-  { id:'F4', title:'WEB-02 — Deprecated 3DES enabled on TLS', tags:['Crypto','Config'], meta:'Impact: Medium • Weak cipher', expect:'NEXT',
-    why:'Cryptographic hardening needed; schedule cipher suite update in sprint, maintain availability, then re-scan to verify deprecation.'},
-  { id:'F5', title:'Legacy backup host on EOL OS (segmented zone)', tags:['EOL','Legacy','Segmented'], meta:'Impact: Medium • Exposure: Internal-only', expect:'LATER',
-    why:'If properly segmented, plan OS upgrade/migration in the next standard window; add network ACLs as compensating control until replaced.'}
+  { id:'F1',
+    title:'Public cloud bucket permits unauthenticated listing + read of PII',
+    tags:['Cloud','Exposure','Misconfig','CTI: active'],
+    meta:'CTI/OSINT: indexed by search; PII confirmed • Impact: High • Exposure: Public',
+    expect:'NOW',
+    why:'Direct PII exposure violates leadership’s #1 priority. Apply public access blocks and least-privilege policy immediately; verify via non-credentialed re-scan.'
+  },
+  { id:'F2',
+    title:'DB-01 — Critical RCE (CVSS 9.8) with weaponized exploit',
+    tags:['Server','Critical','RCE','CTI: weaponized'],
+    meta:'Customer-facing dependency path • CTI: weaponized exploit in wild • Maintenance window tight',
+    expect:'NOW',
+    why:'High-impact system + weaponized exploit. Use emergency patch window; if blocked, implement compensating controls (WAF/IPS segmentation) until patched; credentialed re-scan to close.'
+  },
+  { id:'F3',
+    title:'HR-LAP12 — High severity CVE (8.1), PoC only, standard user',
+    tags:['Endpoint','PoC','Internal'],
+    meta:'CTI: PoC only, no active exploitation • Exposure: Internal • Role: standard user',
+    expect:'NEXT',
+    why:'Lower business impact and no active exploitation → remediate within sprint and confirm with credentialed endpoint scan.'
+  },
+  { id:'F4',
+    title:'WEB-02 — Deprecated 3DES still enabled on TLS',
+    tags:['Crypto','Config','Customer-facing'],
+    meta:'External surface • Change requires coordination • No active exploit noted',
+    expect:'NEXT',
+    why:'Crypto hardening is important but typically not same-day. Schedule cipher suite change in the sprint; validate removal via non-credentialed re-scan.'
+  },
+  { id:'F5',
+    title:'Legacy backup host on EOL OS (segmented zone)',
+    tags:['EOL','Legacy','Segmented'],
+    meta:'Exposure: Internal-only • Compensating controls in place • Migration planned',
+    expect:'LATER',
+    why:'Segmentation reduces immediate exposure. Plan OS upgrade/migration in the next standard window; reinforce network ACLs; credentialed scans guide de-risking until replacement.'
+  }
 ];
 
 let KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL:[] };
@@ -419,14 +446,30 @@ function gradeKanban(){
 
 /* =================== PBQ 4: Scan Strategy Matrix =================== */
 const ASSETS = [
-  { name:'DMZ Web Server', ctx:'Internet-facing; frequent releases; SLA-sensitive', expectType:'Credentialed', expectCadence:'Weekly',
-    why:'Credentialed scans validate patch levels and hardening; public exposure merits frequent cycles (weekly) with verification via re-scan.'},
-  { name:'Finance DB', ctx:'High confidentiality/integrity; narrow maintenance windows', expectType:'Credentialed', expectCadence:'Weekly',
-    why:'Deeper checks catch missing patches/config drift; schedule within approved windows; verify via re-scan before closure.'},
-  { name:'Partner API Gateway', ctx:'Perimeter control; rate-limited; third-party clients', expectType:'Non-credentialed', expectCadence:'Daily',
-    why:'External, attacker’s-eye coverage catches exposed vulns quickly with light impact; pair with periodic credentialed scans off-hours.'},
-  { name:'EOL Backup Host (segmented)', ctx:'Legacy OS; isolated network segment; migration planned', expectType:'Credentialed', expectCadence:'Bi-weekly',
-    why:'Credentialed depth supports compensating controls and migration planning; lower cadence acceptable due to segmentation.'}
+  { name:'KonaTech DMZ Web Server',
+    ctx:'Customer-facing; frequent releases; SLA-sensitive; CTI monitoring enabled',
+    expectType:'Credentialed',
+    expectCadence:'Weekly',
+    why:'Credentialed depth confirms patch/config state after frequent changes; public exposure argues for frequent cycles. Non-credentialed re-scan can validate external surface post-change.'
+  },
+  { name:'KonaTech Finance DB',
+    ctx:'High confidentiality/integrity; narrow maintenance windows; change-controlled',
+    expectType:'Credentialed',
+    expectCadence:'Weekly',
+    why:'Deep verification of patches/config baselines is critical. Schedule within approved windows and require credentialed re-scan before closure.'
+  },
+  { name:'Partner API Gateway',
+    ctx:'Internet-exposed; rate-limited; third-party traffic; monitored by CTI',
+    expectType:'Non-credentialed',
+    expectCadence:'Daily',
+    why:'Perimeter view catches exposed vulns quickly with low impact. Pair with periodic credentialed checks off-hours for config/patch depth.'
+  },
+  { name:'Legacy Backup Host (segmented)',
+    ctx:'EOL OS; isolated segment; migration planned; compensating ACLs applied',
+    expectType:'Credentialed',
+    expectCadence:'Bi-weekly',
+    why:'Credentialed detail supports compensating controls and migration planning; segmentation allows a slightly lower cadence.'
+  }
 ];
 const TYPES = ['Credentialed','Non-credentialed'];
 const CAD   = ['Daily','Weekly','Bi-weekly','Monthly'];
