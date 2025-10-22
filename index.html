@@ -1,1 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PBQ Runner — Lesson 8 (Vulnerability Management)</title>
+  <style>
+    :root {
+      --bg: #0f172a;        /* dark slate background */
+      --panel: #0b1022;
+      --card: #0f1630;
+      --ink: #e5e7eb;
+      --ink-dim: #9aa3b2;
+      --accent: #60a5fa;    /* sky */
+      --ok: #34d399;        /* green */
+      --warn: #f59e0b;      /* amber */
+      --err: #f87171;       /* red */
+      --line: #1e293b;
+      --chip: #11193a;
+    }
 
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 800px at 12% -10%, #0b1027 12%, #0a0e1f 48%, #070b18 100%), var(--bg);
+      color: var(--ink);
+      font: 16px/1.5 "Segoe UI", Roboto, system-ui, sans-serif;
+    }
+
+    header {
+      padding: 20px 16px;
+      position: sticky; top: 0; z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #0c122b 0%, #0b1022 100%);
+      box-shadow: 0 2px 24px rgba(0,0,0,.25);
+    }
+
+    h1 { margin: .2rem 0; font-size: 1.25rem; font-weight: 700; letter-spacing:.2px; }
+
+    .ribbon {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.45rem .75rem; border:1px solid #1f2a44; border-radius:999px;
+      background: #0b1330; color: #c7d2fe; font-weight:700;
+    }
+    .ribbon small{opacity:.8; font-weight:600}
+
+    main { max-width: 1050px; margin: 28px auto 80px; padding: 0 16px; }
+
+    .toolbar {
+      display:flex; align-items:center; justify-content: space-between; flex-wrap:wrap; gap:12px; margin:.75rem 0 0;
+    }
+    .btn {
+      appearance:none; border:1px solid #26304f; background:#0c1440; color:#dbeafe;
+      padding:.6rem .95rem; height:40px; min-width:132px; border-radius:12px; cursor:pointer; font-weight:700;
+      transition: all .15s ease-in-out; text-decoration:none;
+    }
+    .btn:hover { background:#122063; border-color:#325ad6; }
+    .btn.primary { background: #2563eb; border-color:#2563eb; color: #fff; }
+    .btn.primary:hover { background:#1f50c1; }
+    .pill {
+      display:inline-block; padding:.35rem .7rem; border-radius:999px; background:#0d153f; border:1px solid #243163; color:#93c5fd; font-size:.85rem; font-weight:700;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #0f1630, #0c1227);
+      border: 1px solid #1e2a4a;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 18px 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    .title { font-weight: 800; font-size:1.1rem; letter-spacing:.2px }
+    .muted { color: var(--ink-dim); }
+
+    .scenario-wrap { display:grid; gap:10px; }
+    .scenario-label {
+      width:max-content; padding:.35rem .75rem; border-radius:999px;
+      background:#19213f; border:1px solid #2a3a76; color:#93c5fd; font-size:.8rem; font-weight:800; letter-spacing:.4px; text-transform:uppercase;
+    }
+    .scenario{white-space:pre-wrap; color:#e5e7f3}
+
+    /* ===== PBQ 1: Kanban Drag ===== */
+    .kanban { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:10px; }
+    .lane {
+      border:1px dashed #2a355b; border-radius:14px; background:#0c1330; padding:10px; min-height:180px;
+    }
+    .lane h4 { margin:.2rem 0 .6rem; color:#bfdbfe; font-size:.98rem }
+    .cardlet {
+      background:#0b1337; border:1px solid #253568; border-radius:12px; padding:.55rem .65rem; margin:.4rem 0;
+      cursor:grab; box-shadow: 0 6px 16px rgba(0,0,0,.25);
+    }
+    .cardlet.dragging { opacity:.85; border-style: solid; outline:1px dashed #60a5fa }
+    .tag { display:inline-block; padding:.2rem .45rem; border-radius:999px; font-size:.72rem; background:#11193a; border:1px solid #23356a; color:#9cc1ff; margin-right:.35rem }
+    .meta { color:#9aa3b2; font-size:.85rem; margin-top:.3rem }
+
+    .feedback { margin-top:.6rem; border:1px solid #3b2352; background:#190e28; color:#f3e8ff; padding:.55rem .7rem; border-radius:10px; font-size:.95rem }
+    .result { margin-top:.6rem; font-weight:800 }
+    .result.correct{color:var(--ok)} .result.incorrect{color:var(--err)}
+
+    /* ===== PBQ 2: SBOM tri-state ===== */
+    table { width:100%; border-collapse:separate; border-spacing:0 }
+    th, td { padding:10px; border-bottom:1px solid #1f2b4b; }
+    th { color:#c7d2fe; text-align:left; background:#0e1739; position:sticky; top:0; }
+    .tri { display:flex; gap:6px }
+    .chip { background:var(--chip); border:1px solid #223362; padding:.15rem .5rem; border-radius:999px; font-size:.78rem; color:#c7d2fe }
+
+    /* ===== PBQ 3: Policy Fixer (toggle switches) ===== */
+    .switch { position:relative; display:inline-block; width:48px; height:26px; vertical-align:middle }
+    .switch input { display:none }
+    .slider { position:absolute; cursor:pointer; inset:0; background:#1a2345; border:1px solid #2a3a7a; border-radius:999px; transition:.2s }
+    .slider:before{content:""; position:absolute; height:20px; width:20px; left:3px; top:2px; background:#cbd5e1; border-radius:50%; transition:.2s}
+    .switch input:checked + .slider { background:#1b3f7a; border-color:#3b82f6 }
+    .switch input:checked + .slider:before { transform: translateX(21px); background:#bfdbfe }
+
+    .policy { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre; background:#0a112b; color:#d1d5db; border:1px solid #203061; border-radius:12px; padding:10px; margin-top:10px; max-height:260px; overflow:auto }
+
+    /* ===== PBQ 4: Scan Strategy Matrix ===== */
+    .grid { display:grid; gap:10px }
+    @media(min-width:720px){ .grid.cols-2{ grid-template-columns: 1fr 1fr } }
+    select {
+      background:#0a1236; color:#dbeafe; border:1px solid #243362; padding:.45rem .55rem; border-radius:10px;
+    }
+    select:focus{ outline:none; box-shadow:0 0 0 2px rgba(96,165,250,.3); border-color:#3b82f6 }
+
+    footer { max-width:1050px; margin: 16px auto 80px; padding: 0 16px; color:#9aa3b2; font-size:.9rem; text-align:center }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="ribbon">
+      <span>Lesson 8 • Vulnerability Management</span>
+      <small>PBQ Set</small>
+    </div>
+
+    <div class="toolbar">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn" href="#" onclick="alert('Practice Qs coming soon');return false;">Practice Questions</a>
+        <a class="btn" href="#" onclick="alert('Audio Review coming soon');return false;">Audio Review</a>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="btnReset">Reset</button>
+        <button class="btn primary" id="btnCheck">Check Answers</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Scenario -->
+    <section class="card">
+      <div class="title">Weekly Risk Review @ AlohaTech</div>
+      <p class="muted">Your team runs continuous scanning across endpoints, servers, and cloud. You’ll triage findings, fix a risky storage policy, and design the right scan strategy.</p>
+      <div class="scenario-wrap">
+        <div class="scenario-label">Scenario</div>
+        <p class="scenario">
+You inherited a mixed environment (Windows/Linux, some EOL gear, multiple SaaS apps, and public cloud storage).
+A new scan and SBOM import flagged the items below. Your job: prioritize remediation, fix the obvious misconfig, and plan the next scan cycle.
+
+Assumptions:
+• Execs care about data exposure and downtime.
+• Patch windows are tight; compensating controls are allowed.
+• Verification (re-scan) is required for closure.
+        </p>
+      </div>
+      <div class="pill">Estimated time: ~12 min</div>
+    </section>
+
+    <!-- ===== PBQ 1: Vulnerability Prioritization Kanban (drag to lanes) ===== -->
+    <section class="card" id="pbq1">
+      <div class="scenario-label">PBQ 1</div>
+      <h2 style="margin:.4rem 0 0">Triage: Drag each finding into the correct lane</h2>
+      <p class="muted">Lanes = <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), <b>Schedule</b> (next window). Use exploitability, exposure, and business impact.</p>
+
+      <div class="kanban">
+        <div class="lane" data-lane="NOW">
+          <h4>Fix Now</h4>
+        </div>
+        <div class="lane" data-lane="NEXT">
+          <h4>Fix Next</h4>
+        </div>
+        <div class="lane" data-lane="LATER">
+          <h4>Schedule</h4>
+        </div>
+      </div>
+      <div style="margin-top:10px" id="pool"></div>
+      <div class="result" id="pbq1_result"></div>
+      <div class="feedback" id="pbq1_fb" hidden></div>
+    </section>
+
+    <!-- ===== PBQ 2: SBOM triage (tri-state) ===== -->
+    <section class="card" id="pbq2">
+      <div class="scenario-label">PBQ 2</div>
+      <h2 style="margin:.4rem 0 0">SBOM Hot-Spot Hunt</h2>
+      <p class="muted">Choose an action per component: <span class="chip">Immediate</span> | <span class="chip">Monitor</span> | <span class="chip">Ignore</span></p>
+
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Component</th><th>Version</th><th>Notes</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="sbom_tbody"></tbody>
+        </table>
+      </div>
+      <div class="result" id="pbq2_result"></div>
+      <div class="feedback" id="pbq2_fb" hidden></div>
+    </section>
+
+    <!-- ===== PBQ 3: Cloud Policy Fixer (toggle) ===== -->
+    <section class="card" id="pbq3">
+      <div class="scenario-label">PBQ 3</div>
+      <h2 style="margin:.4rem 0 0">Cloud Storage Misconfiguration — Fix the Policy</h2>
+      <p class="muted">Turn on the right safeguards. The preview updates live.</p>
+
+      <div class="grid cols-2">
+        <div>
+          <p style="margin:.2rem 0 .6rem"><b>Controls</b></p>
+          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
+            <span class="switch"><input type="checkbox" id="p_public" /><span class="slider"></span></span>
+            <span>Block public access (bucket-level deny)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
+            <span class="switch"><input type="checkbox" id="p_principal" /><span class="slider"></span></span>
+            <span>Remove <code>Principal:"*"</code> from policy</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
+            <span class="switch"><input type="checkbox" id="p_encrypt" /><span class="slider"></span></span>
+            <span>Require encryption with KMS (SSE-KMS)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
+            <span class="switch"><input type="checkbox" id="p_version" /><span class="slider"></span></span>
+            <span>Enable object versioning</span>
+          </label>
+        </div>
+        <div>
+          <p style="margin:.2rem 0 .6rem"><b>Policy Preview</b></p>
+          <pre class="policy" id="policy_preview"></pre>
+        </div>
+      </div>
+      <div class="result" id="pbq3_result"></div>
+      <div class="feedback" id="pbq3_fb" hidden></div>
+    </section>
+
+    <!-- ===== PBQ 4: Scan Strategy Matrix ===== -->
+    <section class="card" id="pbq4">
+      <div class="scenario-label">PBQ 4</div>
+      <h2 style="margin:.4rem 0 0">Design the Scan Strategy</h2>
+      <p class="muted">Pick scan type & cadence per asset. Balance depth and practicality.</p>
+
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset</th><th>Context</th><th>Scan Type</th><th>Cadence</th>
+            </tr>
+          </thead>
+          <tbody id="scan_tbody"></tbody>
+        </table>
+      </div>
+      <div class="result" id="pbq4_result"></div>
+      <div class="feedback" id="pbq4_fb" hidden></div>
+    </section>
+  </main>
+
+  <footer>
+    New interaction styles: kanban triage • tri-state SBOM • toggle policy fixer • strategy matrix. Built for Lesson 8 (identify → analyze → treat → verify).
+  </footer>
+
+<script>
+/* =================== Helpers =================== */
+const $  = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>Array.from(el.querySelectorAll(s));
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* =================== PBQ 1: Kanban =================== */
+const FINDINGS = [
+  { id:'F1', title:'Public S3 bucket listing PII', tags:['Cloud','Exposure'], meta:'Impact: High • Exploit: N/A (misconfig)', expect:'NOW',
+    why:'Public data exposure is actively leaking; fix config immediately (deny public, block ACLs).'},
+  { id:'F2', title:'DB-01: CVE-2023-____ (CVSS 9.8), exploit in wild', tags:['Server','Critical'], meta:'Impact: High • Exploit: Yes', expect:'NOW',
+    why:'Critical RCE with known exploit on a high-value system merits emergency patch/compensating control.'},
+  { id:'F3', title:'HR-LAP12: CVE-2024-____ (8.1), PoC only', tags:['Endpoint'], meta:'Impact: Low • Exploit: PoC', expect:'NEXT',
+    why:'High-severity but lower business impact and only PoC → fix in sprint after urgent items.'},
+  { id:'F4', title:'WEB-02: Deprecated 3DES enabled', tags:['Crypto','Config'], meta:'Impact: Medium • Exploit: Weak cipher', expect:'NEXT',
+    why:'Replace deprecated cipher soon; not typically a same-day outage unless policy demands.'},
+  { id:'F5', title:'Legacy backup server (EOL OS) isolated', tags:['EOL','Legacy'], meta:'Impact: Medium • Compensating: network-seg', expect:'LATER',
+    why:'If segmented and stable, plan upgrade/migration with change window.'}
+];
+
+let KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL:[] };
+
+function renderKanban(){
+  const lanes = { NOW:$('[data-lane="NOW"]'), NEXT:$('[data-lane="NEXT"]'), LATER:$('[data-lane="LATER"]') };
+  Object.values(lanes).forEach(l=> l.querySelectorAll('.cardlet').forEach(el=>el.remove()));
+  $('#pool').innerHTML = '';
+
+  for(const lane of ['NOW','NEXT','LATER']){
+    KANBAN_STATE[lane].forEach(f => lanes[lane].appendChild(makeCardlet(f)));
+  }
+  KANBAN_STATE.POOL.forEach(f => $('#pool').appendChild(makeCardlet(f)));
+
+  // Empty hints
+  for(const lane of ['NOW','NEXT','LATER']){
+    if(!KANBAN_STATE[lane].length){
+      const ghost = document.createElement('div');
+      ghost.className='muted';
+      ghost.style.fontStyle='italic'; ghost.textContent='Drag here';
+      lanes[lane].appendChild(ghost);
+    }
+  }
+}
+
+function makeCardlet(f){
+  const el = document.createElement('div');
+  el.className='cardlet'; el.draggable=true; el.dataset.id=f.id;
+  el.innerHTML = `<div><span class="tag">${f.tags.join('</span> <span class="tag">')}</span></div>
+    <div style="font-weight:700;margin-top:.2rem">${f.title}</div>
+    <div class="meta">${f.meta}</div>`;
+  el.addEventListener('dragstart', e=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', f.id); });
+  el.addEventListener('dragend', ()=> el.classList.remove('dragging'));
+  return el;
+}
+
+function setupDnd(){
+  const dropZones = [ $('[data-lane="NOW"]'), $('[data-lane="NEXT"]'), $('[data-lane="LATER"]'), $('#pool') ];
+  dropZones.forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.style.outline='1px dashed #60a5fa'; });
+    zone.addEventListener('dragleave', ()=> zone.style.outline='none');
+    zone.addEventListener('drop', e=>{
+      e.preventDefault(); zone.style.outline='none';
+      const id = e.dataTransfer.getData('text/plain');
+      moveFindingTo(zone.id ? 'POOL' : zone.dataset.lane, id);
+      renderKanban();
+    });
+  });
+}
+
+function moveFindingTo(targetLane, id){
+  for(const lane of ['NOW','NEXT','LATER','POOL']){
+    const i = KANBAN_STATE[lane].findIndex(x=>x.id===id);
+    if(i>=0){ KANBAN_STATE[lane].splice(i,1); break; }
+  }
+  KANBAN_STATE[targetLane].push(FINDINGS.find(x=>x.id===id));
+}
+
+function initKanban(){
+  KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL: shuffle([...FINDINGS]) };
+  renderKanban(); setupDnd();
+}
+
+function gradeKanban(){
+  let correct=0, total=FINDINGS.length;
+  const fbLines=[];
+  for(const lane of ['NOW','NEXT','LATER']){
+    for(const f of KANBAN_STATE[lane]){
+      if(lane===f.expect) { correct++; }
+      else { fbLines.push(`• ${f.title}: should be in ${f.expect}. ${f.why}`); }
+    }
+  }
+  $('#pbq1_result').textContent = `${correct}/${total} placed correctly`;
+  $('#pbq1_result').className = 'result ' + (correct===total ? 'correct' : 'incorrect');
+  const fb = $('#pbq1_fb');
+  if(fbLines.length){ fb.hidden=false; fb.innerHTML = fbLines.join('<br>'); } else { fb.hidden=true; fb.textContent=''; }
+}
+
+/* =================== PBQ 2: SBOM Tri-State =================== */
+const SBOM_ROWS = [
+  { comp:'log4j-core', ver:'2.14.1', note:'CVE-2021-44228 (Critical)', expect:'Immediate',
+    why:'Upgrade to ≥2.17.x or vendor guidance; widely exploited.'},
+  { comp:'OpenSSL', ver:'1.0.2u', note:'EOL series', expect:'Immediate',
+    why:'EOL no fixes; move to supported LTS.'},
+  { comp:'React', ver:'17.0.2', note:'No security note', expect:'Monitor',
+    why:'Normal dependency; monitor release notes.'},
+  { comp:'libxml2', ver:'2.9.10', note:'Low-sev CVE; no exploit', expect:'Schedule',
+    why:'Patch in next window; low severity.'}
+];
+const SBOM_CHOICES = ['Immediate','Monitor','Schedule','Ignore'];
+
+function renderSBOM(){
+  const tb = $('#sbom_tbody'); tb.innerHTML='';
+  SBOM_ROWS.forEach((r, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${r.comp}</b></td>
+      <td>${r.ver}</td>
+      <td class="muted">${r.note}</td>
+      <td>
+        <div class="tri">
+          <select data-idx="${idx}">
+            ${['','Immediate','Monitor','Schedule','Ignore'].map(v=>`<option value="${v}" ${v===''?'selected':''} ${v===''?'disabled':''}>${v||'— select —'}</option>`).join('')}
+          </select>
+          <span class="chip">expected: ?</span>
+        </div>
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function gradeSBOM(){
+  let correct=0, total=SBOM_ROWS.length; const fb=[];
+  $$('#sbom_tbody select').forEach(sel=>{
+    const idx = Number(sel.dataset.idx), row = SBOM_ROWS[idx];
+    const v = sel.value;
+    const chip = sel.parentElement.querySelector('.chip');
+    if(!v){ /* not answered */ chip.textContent='expected: ?'; return; }
+    if(v===row.expect){ correct++; chip.textContent='✓'; chip.style.color='#34d399'; }
+    else { chip.textContent=`✗`; chip.style.color='#f87171'; fb.push(`• ${row.comp}: choose “${row.expect}”. ${row.why}`); }
+  });
+  $('#pbq2_result').textContent = `${correct}/${total} correct`;
+  $('#pbq2_result').className = 'result ' + (correct===total ? 'correct' : 'incorrect');
+  const el = $('#pbq2_fb');
+  if(fb.length){ el.hidden=false; el.innerHTML=fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
+}
+
+/* =================== PBQ 3: Cloud Policy Fixer (toggles) =================== */
+function policyPreview(){
+  const cfg = {
+    blockPublic: $('#p_public').checked,
+    removeStar:  $('#p_principal').checked,
+    encrypt:     $('#p_encrypt').checked,
+    versioning:  $('#p_version').checked
+  };
+
+  const policy = {
+    "Version": "2012-10-17",
+    "Statement": [
+      cfg.removeStar ? {
+        "Sid": "AllowLeastPrivilege",
+        "Effect": "Allow",
+        "Principal": {"AWS":"arn:aws:iam::123456789012:role/AppRole"},
+        "Action": ["s3:GetObject"],
+        "Resource": ["arn:aws:s3:::company-data/*"],
+        "Condition": {"StringEquals":{"aws:PrincipalOrgID":"o-abc123"}}
+      } : {
+        "Sid": "OverPermissive",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:*",
+        "Resource": "arn:aws:s3:::company-data/*"
+      },
+      cfg.blockPublic ? {
+        "Sid": "DenyPublic",
+        "Effect": "Deny",
+        "Principal": "*",
+        "Action": ["s3:PutBucketAcl","s3:PutBucketPolicy","s3:PutObjectAcl"],
+        "Resource": ["arn:aws:s3:::company-data","arn:aws:s3:::company-data/*"],
+        "Condition":{"Bool":{"aws:SecureTransport":"false"}}
+      } : null
+    ].filter(Boolean)
+  };
+
+  const lines = [];
+  if(cfg.encrypt){
+    lines.push(`SSE: KMS required (aws:kms)`);
+  }
+  if(cfg.versioning){
+    lines.push(`Versioning: Enabled`);
+  }
+  $('#policy_preview').textContent = JSON.stringify(policy, null, 2) + (lines.length? `\n\n# Bucket settings\n${lines.map(l=>'• '+l).join('\n')}`:'');
+}
+
+['p_public','p_principal','p_encrypt','p_version'].forEach(id=>{
+  document.addEventListener('change', (e)=>{ if(e.target && e.target.id===id){ policyPreview(); }});
+});
+
+function gradePolicy(){
+  const need = {
+    public: $('#p_public').checked,
+    principal: $('#p_principal').checked,
+    encrypt: $('#p_encrypt').checked
+  };
+  let score = 0; const fb=[];
+  if(need.public){ score++; } else fb.push('• Add a deny public / block public access control.');
+  if(need.principal){ score++; } else fb.push('• Remove overly permissive Principal:"*".');
+  if(need.encrypt){ score++; } else fb.push('• Require SSE-KMS encryption at rest.');
+  // versioning is nice-to-have
+  if($('#p_version').checked){ score += .25; }
+
+  $('#pbq3_result').textContent = `${score}/3.25 controls selected`;
+  $('#pbq3_result').className = 'result ' + (score>=3 ? 'correct' : 'incorrect');
+  const el = $('#pbq3_fb');
+  if(fb.length){ el.hidden=false; el.innerHTML = fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
+}
+
+/* =================== PBQ 4: Scan Strategy Matrix =================== */
+const ASSETS = [
+  { name:'DMZ Web Server', ctx:'Customer-facing, change-prone', expectType:'Credentialed', expectCadence:'Weekly',
+    why:'Depth to verify patches/config; public exposure → frequent.'},
+  { name:'Finance DB', ctx:'High impact, restricted window', expectType:'Credentialed', expectCadence:'Weekly',
+    why:'Critical data; credentialed checks detect missing patches & configs.'},
+  { name:'Partner-exposed API GW', ctx:'Internet-accessible, rate-limited', expectType:'Non-credentialed', expectCadence:'Daily',
+    why:'Perimeter view to catch exposed vulns; lightweight but frequent.'},
+  { name:'EOL Backup Host (segmented)', ctx:'Legacy, isolated segment', expectType:'Credentialed', expectCadence:'Bi-weekly',
+    why:'Deeper view helps identify compensating controls; lower cadence if isolated.'}
+];
+const TYPES = ['Credentialed','Non-credentialed'];
+const CAD   = ['Daily','Weekly','Bi-weekly','Monthly'];
+
+function renderScanMatrix(){
+  const tb = $('#scan_tbody'); tb.innerHTML='';
+  ASSETS.forEach((a,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${a.name}</b></td>
+      <td class="muted">${a.ctx}</td>
+      <td><select data-i="${i}" data-k="t">${['','Credentialed','Non-credentialed'].map(v=>`<option ${v===''?'selected disabled':''} value="${v}">${v||'— select —'}</option>`).join('')}</select></td>
+      <td><select data-i="${i}" data-k="c">${['','Daily','Weekly','Bi-weekly','Monthly'].map(v=>`<option ${v===''?'selected disabled':''} value="${v}">${v||'— select —'}</option>`).join('')}</select></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+function gradeScanMatrix(){
+  let correct=0, total=ASSETS.length*2; const fb=[];
+  $$('#scan_tbody select').forEach(sel=>{
+    const i = Number(sel.dataset.i), k = sel.dataset.k, row = ASSETS[i];
+    const v = sel.value;
+    if(!v) return;
+    if(k==='t'){
+      if(v===row.expectType) correct++;
+      else fb.push(`• ${row.name}: use ${row.expectType}. ${row.why}`);
+    } else {
+      if(v===row.expectCadence) correct++;
+      else fb.push(`• ${row.name}: cadence ${row.expectCadence}. ${row.why}`);
+    }
+  });
+  $('#pbq4_result').textContent = `${correct}/${total} selections correct`;
+  $('#pbq4_result').className = 'result ' + (correct===total ? 'correct' : 'incorrect');
+  const el = $('#pbq4_fb');
+  if(fb.length){ el.hidden=false; el.innerHTML=fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
+}
+
+/* =================== Global Check/Reset =================== */
+function checkAll(){
+  gradeKanban();
+  gradeSBOM();
+  gradePolicy();
+  gradeScanMatrix();
+}
+function resetAll(){
+  // PBQ1
+  initKanban();
+  $('#pbq1_result').textContent=''; $('#pbq1_fb').hidden=true; $('#pbq1_fb').textContent='';
+  // PBQ2
+  renderSBOM(); $('#pbq2_result').textContent=''; $('#pbq2_fb').hidden=true; $('#pbq2_fb').textContent='';
+  // PBQ3
+  ['p_public','p_principal','p_encrypt','p_version'].forEach(id=>{ const el = $('#'+id); el.checked=false; });
+  policyPreview(); $('#pbq3_result').textContent=''; $('#pbq3_fb').hidden=true; $('#pbq3_fb').textContent='';
+  // PBQ4
+  renderScanMatrix(); $('#pbq4_result').textContent=''; $('#pbq4_fb').hidden=true; $('#pbq4_fb').textContent='';
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  initKanban();
+  renderSBOM();
+  policyPreview();
+  renderScanMatrix();
+
+  $('#btnCheck').addEventListener('click', checkAll);
+  $('#btnReset').addEventListener('click', resetAll);
+});
+</script>
+</body>
+</html>
