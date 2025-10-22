@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Security+ Lesson 8 – Interactive PBQ (Multiple Choice)</title>
+<style>
+  :root{
+    --ink:#1b1f2f; --muted:#4e566c; --accent:#2463eb; --line:#e2e6ef; --ok:#0b6b2f; --bad:#a5282c; --bg:#ffffff; --hint:#0b6b2f22; --warn:#a5282c22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font:16px/1.55 "Segoe UI", Roboto, system-ui, -apple-system, Arial, sans-serif; color:var(--ink); background:var(--bg);}
+  header{padding:24px 20px 10px; border-bottom:1px solid var(--line);}
+  h1{margin:.2rem 0; font-size:1.4rem;}
+  .sub{color:var(--muted);}
+  .meta-grid{display:flex; gap:10px; flex-wrap:wrap; margin-top:.5rem;}
+  .pill{border:1px solid var(--line); border-radius:999px; padding:.2rem .6rem; color:var(--muted);}
+  main{max-width:1000px; margin:0 auto; padding:18px 20px 40px;}
+  h2{font-size:1.1rem; color:var(--accent); margin:.3rem 0 .7rem;}
+  .card{border:1px solid var(--line); border-radius:12px; padding:16px; margin:16px 0; background:#fff;}
+  .controls{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 0;}
+  button{appearance:none; border:1px solid var(--line); background:#fff; padding:.55rem .9rem; border-radius:10px; cursor:pointer; font-weight:600}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  button.ghost{background:transparent}
+
+  .q{margin:1rem 0; border:1px solid var(--line); border-radius:12px; padding:14px}
+  .q-header{display:flex; align-items:flex-start; justify-content:space-between; gap:8px}
+  .q-title{font-weight:600}
+  .q-body{margin-top:.5rem}
+  .opts{display:grid; gap:.4rem; margin:.6rem 0 0}
+  .opt{display:flex; gap:.6rem; align-items:flex-start; padding:.45rem .55rem; border-radius:10px; border:1px solid transparent}
+  .opt input{margin-top:.25rem}
+  .opt label{display:block; cursor:pointer}
+  .q.correct{border-color:var(--ok); background:var(--hint)}
+  .q.incorrect{border-color:var(--bad); background:var(--warn)}
+  .explain{margin-top:.6rem; font-size:.95rem; color:var(--muted)}
+  .akey{color:var(--ok); font-weight:700}
+  .scorebar{display:flex; align-items:center; gap:10px;}
+  progress{width:240px; height:14px}
+  .sr-only{position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden}
+
+  details > summary{cursor:pointer; color:var(--accent); font-weight:600}
+  details .akey{display:inline-block; margin-left:.25rem}
+
+  @media print{
+    header{border:none}
+    button, .controls{display:none !important}
+    .q{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="sub">CompTIA Security+ • Lesson 8</div>
+  <h1>Practice / Study Questions (Interactive PBQ)</h1>
+  <div class="meta-grid">
+    <div class="pill">Topic: Vulnerability Management</div>
+    <div class="pill" id="qcount">15 Questions</div>
+    <div class="pill">Printable</div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Instructions</h2>
+    <p>Answer each question, then choose <strong>Check</strong> to see immediate feedback and an explanation. Use <strong>Check All</strong> to grade everything at once, <strong>Shuffle</strong> to change the order, and <strong>Reset</strong> to clear your selections. Aligned to Lesson 8: device/OS, application &amp; cloud vulnerabilities, scanning methods, analysis &amp; remediation.</p>
+    <div class="controls">
+      <button class="primary" id="btnCheckAll" type="button" aria-label="Check all questions">Check All</button>
+      <button id="btnReset" type="button">Reset</button>
+      <button id="btnShuffle" type="button" class="ghost">Shuffle</button>
+    </div>
+  </section>
+
+  <section id="qs" class="card" aria-live="polite">
+    <h2>Questions</h2>
+    <div id="qWrap"></div>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Results</h2>
+    <div class="scorebar">
+      <div id="scoreText" aria-live="polite">0 / 15 correct</div>
+      <progress id="scoreProg" max="15" value="0" aria-hidden="true"></progress>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Show answer key</summary>
+      <ol id="answerKey"></ol>
+    </details>
+  </section>
+</main>
+
+<script>
+// --- Data model (Lesson 8) ---------------------------------------------------
+const BANK = [
+  {
+    q: "What is the primary purpose of vulnerability management?",
+    options: [
+      "Encrypting all network traffic end-to-end",
+      "Identifying, evaluating, treating, and reporting security weaknesses on a continuous cycle",
+      "Blocking all inbound ports at the perimeter",
+      "Replacing legacy systems with cloud services"
+    ],
+    a: 1,
+    why: "Lesson 8 defines vulnerability management as a continuous cycle of identification, evaluation, treatment, and reporting across OS, apps, and other components."
+  },
+  {
+    q: "Why are EOL (end-of-life) systems high risk?",
+    options: [
+      "They are always air-gapped by default",
+      "They receive no vendor patches or support, leaving new CVEs unaddressed",
+      "They only run on mobile hardware",
+      "They require HSMs for key storage"
+    ],
+    a: 1,
+    why: "Vendors stop shipping security fixes for EOL products (e.g., Windows 7/Server 2008), so new vulnerabilities remain exposed."
+  },
+  {
+    q: "Which example best illustrates a firmware-level risk?",
+    options: [
+      "Cookie theft via XSS",
+      "UEFI persistence like LoJax surviving OS reinstalls",
+      "Weak password policy on a SaaS app",
+      "DHCP starvation"
+    ],
+    a: 1,
+    why: "Firmware/UEFI malware (e.g., LoJax) can persist beyond OS reimaging, representing deep, high-impact compromise."
+  },
+  {
+    q: "In virtualization, what does a VM escape enable?",
+    options: [
+      "Guest code to access the host/hypervisor or other VMs",
+      "Snapshots to be taken more frequently",
+      "Automatic key rotation",
+      "Hot-add of NICs without downtime"
+    ],
+    a: 0,
+    why: "A VM escape breaks isolation, allowing guest-to-host or guest-to-guest compromise."
+  },
+  {
+    q: "What characterizes a zero-day vulnerability?",
+    options: [
+      "No known exploit code exists",
+      "Vendors have zero days to patch once disclosed; it’s unknown/unsolved at first",
+      "It only affects legacy OS versions",
+      "It is always a misconfiguration"
+    ],
+    a: 1,
+    why: "Zero-days are unknown to the vendor at time of exploitation/disclosure, creating a race to patch."
+  },
+  {
+    q: "Which is the MOST common root cause of breaches in cloud storage (e.g., buckets)?",
+    options: [
+      "Fiber cuts",
+      "Misconfigurations exposing data publicly",
+      "Quantum cracking of TLS",
+      "Power failures in a region"
+    ],
+    a: 1,
+    why: "Lesson 8 emphasizes misconfiguration (overly permissive access) as a frequent cloud risk."
+  },
+  {
+    q: "Which scenario best demonstrates a cryptographic vulnerability?",
+    options: [
+      "Using 3DES long after deprecation (Sweet32 risk)",
+      "Disabling HTTP/2",
+      "Using VLANs for segmentation",
+      "Turning on DoH in browsers"
+    ],
+    a: 0,
+    why: "Deprecated algorithms/cipher suites (e.g., 3DES) and known issues (Sweet32) increase exposure."
+  },
+  {
+    q: "What practice most effectively protects encryption keys at rest in an enterprise?",
+    options: [
+      "Storing keys in a text file on a jump box",
+      "Emailing keys to administrators for backup",
+      "Using HSMs or a centralized KMS with strict access controls and rotation",
+      "Embedding keys in source code"
+    ],
+    a: 2,
+    why: "Hardware Security Modules / managed KMS, plus rotation and access control, are best practice."
+  },
+  {
+    q: "On mobile platforms, which user action significantly elevates risk for organizations?",
+    options: [
+      "Enabling dark mode",
+      "Jailbreaking/Rooting and sideloading apps with excessive permissions",
+      "Pairing Bluetooth headphones",
+      "Using airplane mode"
+    ],
+    a: 1,
+    why: "Rooting/Jailbreaking and sideloading bypass platform protections and allow unvetted code/permissions."
+  },
+  {
+    q: "Which attack targets a web app by injecting client-side script that runs in the victim’s browser?",
+    options: [
+      "SQL injection",
+      "Cross-Site Scripting (XSS)",
+      "SMB relay",
+      "DNS cache poisoning"
+    ],
+    a: 1,
+    why: "XSS injects script that executes in the browser with the site’s trust context."
+  },
+  {
+    q: "Which CASB deployment forwards client traffic at the enterprise edge and inspects it before the cloud?",
+    options: [
+      "Reverse proxy",
+      "Inline WAF",
+      "Forward proxy",
+      "API-mode only"
+    ],
+    a: 2,
+    why: "A forward proxy sits on the client side; reverse proxy sits on the provider side; API mode brokers via service APIs."
+  },
+  {
+    q: "What is an SBOM primarily used for?",
+    options: [
+      "Documenting VLAN assignments",
+      "Inventorying all software components and versions to track vulnerable dependencies",
+      "Cataloging IP addresses of a subnet",
+      "Scheduling patch windows"
+    ],
+    a: 1,
+    why: "A Software Bill of Materials lists first/third-party components to quickly assess and remediate vulnerable dependencies."
+  },
+  {
+    q: "Credentialed vs. non-credentialed scanning: which pairing is accurate?",
+    options: [
+      "Credentialed = outside-in internet view; Non-credentialed = insider view",
+      "Credentialed = deeper config/patch checks with auth; Non-credentialed = unauthenticated external perspective",
+      "Both require domain admin",
+      "Neither can detect missing patches"
+    ],
+    a: 1,
+    why: "Credentialed scans log in for richer findings; non-credentialed emulate what an unauth’d observer sees."
+  },
+  {
+    q: "Pen test knowledge models: which is correctly matched?",
+    options: [
+      "Unknown (black-box) = tester has full diagrams and creds",
+      "Known (white-box) = tester has full internal details",
+      "Partially known (gray-box) = tester has no information",
+      "All pen tests forbid exploitation"
+    ],
+    a: 1,
+    why: "White-box (known) provides full info; black-box (unknown) provides none; gray-box provides some."
+  },
+  {
+    q: "After a scan finds critical CVEs, what is the BEST next step in a mature process?",
+    options: [
+      "Publicly disclose the findings to motivate the team",
+      "Delay until the next quarterly window",
+      "Prioritize by impact/exploitability, apply patches or compensating controls, then re-scan to verify",
+      "Reboot affected hosts only"
+    ],
+    a: 2,
+    why: "Lesson 8 stresses analysis → prioritized remediation (patch/config/replace/compensating control) → verification via re-scan."
+  }
+];
+
+// --- State -------------------------------------------------------------------
+let QUESTIONS = [];
+const qWrap = document.getElementById('qWrap');
+const results = document.getElementById('results');
+const scoreText = document.getElementById('scoreText');
+const scoreProg = document.getElementById('scoreProg');
+const answerKey = document.getElementById('answerKey');
+const qcount = document.getElementById('qcount');
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function reset(){
+  QUESTIONS = BANK.map((q, idx) => ({...q, id: idx+1}));
+  render();
+  results.hidden = true;
+  scoreProg.max = QUESTIONS.length;
+  qcount.textContent = `${QUESTIONS.length} Questions`;
+}
+
+function render(){
+  qWrap.innerHTML = '';
+  answerKey.innerHTML = '';
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('article');
+    card.className = 'q';
+    card.id = `q${qi+1}`;
+
+    const head = document.createElement('div');
+    head.className = 'q-header';
+    head.innerHTML = `<div class="q-title">${qi+1}. ${q.q}</div>`;
+
+    const body = document.createElement('div');
+    body.className = 'q-body';
+
+    const opts = document.createElement('div');
+    opts.className = 'opts';
+
+    q.options.forEach((txt, oi) => {
+      const id = `q${qi}_opt${oi}`;
+      const row = document.createElement('div');
+      row.className = 'opt';
+
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = `q${qi}`;
+      input.id = id;
+      input.value = oi;
+
+      const label = document.createElement('label');
+      label.setAttribute('for', id);
+      label.innerHTML = `<strong>${String.fromCharCode(65+oi)}.</strong> ${txt}`;
+
+      row.appendChild(input); row.appendChild(label);
+      opts.appendChild(row);
+    });
+
+    const ctrls = document.createElement('div');
+    ctrls.className = 'controls';
+    const btnCheck = document.createElement('button');
+    btnCheck.textContent = 'Check';
+    btnCheck.type = 'button';
+    btnCheck.addEventListener('click', () => gradeOne(qi));
+
+    const btnClear = document.createElement('button');
+    btnClear.textContent = 'Clear';
+    btnClear.type = 'button';
+    btnClear.className = 'ghost';
+    btnClear.addEventListener('click', () => clearOne(qi));
+
+    const fb = document.createElement('div');
+    fb.className = 'explain';
+    fb.id = `fb${qi}`;
+
+    ctrls.appendChild(btnCheck); ctrls.appendChild(btnClear);
+
+    body.appendChild(opts);
+    body.appendChild(ctrls);
+    body.appendChild(fb);
+
+    card.appendChild(head);
+    card.appendChild(body);
+    qWrap.appendChild(card);
+
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="akey">${String.fromCharCode(65+q.a)}</span> – ${q.options[q.a]}`;
+    answerKey.appendChild(li);
+  });
+}
+
+function getChoice(qi){
+  const sel = document.querySelector(`input[name="q${qi}"]:checked`);
+  return sel ? parseInt(sel.value,10) : null;
+}
+
+function gradeOne(qi){
+  const q = QUESTIONS[qi];
+  const choice = getChoice(qi);
+  const card = document.getElementById(`q${qi+1}`);
+  const fb = document.getElementById(`fb${qi}`);
+  card.classList.remove('correct','incorrect');
+
+  if(choice === null){
+    fb.innerHTML = '<em>Please select an option.</em>';
+    return;
+  }
+  const isCorrect = choice === q.a;
+  card.classList.add(isCorrect ? 'correct' : 'incorrect');
+  const your = String.fromCharCode(65+choice);
+  const key = String.fromCharCode(65+q.a);
+  fb.innerHTML = `${isCorrect ? '✅ Correct' : '❌ Incorrect'} — Your answer: <strong>${your}</strong>. Correct answer: <strong class="akey">${key}</strong>.
+    <br>${q.why}`;
+  updateScore();
+}
+
+function clearOne(qi){
+  const card = document.getElementById(`q${qi+1}`);
+  const fb = document.getElementById(`fb${qi}`);
+  card.classList.remove('correct','incorrect');
+  fb.textContent='';
+  const radios = document.querySelectorAll(`input[name="q${qi}"]`);
+  radios.forEach(r=> r.checked=false);
+  updateScore();
+}
+
+function updateScore(){
+  let correct = 0;
+  QUESTIONS.forEach((q, qi)=>{
+    const sel = getChoice(qi);
+    if(sel !== null && sel === q.a) correct++;
+  });
+  scoreText.textContent = `${correct} / ${QUESTIONS.length} correct`;
+  scoreProg.value = correct;
+  results.hidden = false;
+}
+
+function gradeAll(){
+  QUESTIONS.forEach((_, qi) => gradeOne(qi));
+}
+
+// --- Top controls ------------------------------------------------------------
+document.getElementById('btnCheckAll').addEventListener('click', gradeAll);
+document.getElementById('btnReset').addEventListener('click', reset);
+document.getElementById('btnShuffle').addEventListener('click', ()=>{
+  QUESTIONS = shuffle(QUESTIONS);
+  render();
+});
+
+// Init
+reset();
+</script>
+</body>
+</html>
