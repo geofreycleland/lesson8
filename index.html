@@ -3,253 +3,308 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PBQ Runner — Lesson 8 (Vulnerability Management)</title>
+  <title>PBQ Runner — Lesson 8 (Scenario + Tasks)</title>
   <style>
     :root {
-      --bg: #0f172a;        /* dark slate background */
-      --panel: #0b1022;
-      --card: #0f1630;
-      --ink: #e5e7eb;
-      --ink-dim: #9aa3b2;
-      --accent: #60a5fa;    /* sky */
-      --ok: #34d399;        /* green */
-      --warn: #f59e0b;      /* amber */
-      --err: #f87171;       /* red */
-      --line: #1e293b;
-      --chip: #11193a;
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --ink: #1b1f2f;
+      --ink-dim: #5c6373;
+      --accent: #2463eb;
+      --ok: #2ba84a;
+      --warn: #e0a106;
+      --err: #e63946;
+      --line: #dfe3eb;
+      --muted-bg: #fafbff;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: radial-gradient(1200px 800px at 12% -10%, #0b1027 12%, #0a0e1f 48%, #070b18 100%), var(--bg);
+      background: var(--bg);
       color: var(--ink);
       font: 16px/1.5 "Segoe UI", Roboto, system-ui, sans-serif;
     }
 
     header {
       padding: 20px 16px;
-      position: sticky; top: 0; z-index: 10;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, #0c122b 0%, #0b1022 100%);
-      box-shadow: 0 2px 24px rgba(0,0,0,.25);
+      border-bottom: 1px solid #d7dce6;
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    h1 { margin: .2rem 0; font-size: 1.25rem; font-weight: 700; letter-spacing:.2px; }
-
-    .ribbon {
-      display:inline-flex; align-items:center; gap:.5rem;
-      padding:.45rem .75rem; border:1px solid #1f2a44; border-radius:999px;
-      background: #0b1330; color: #c7d2fe; font-weight:700;
+    h1 {
+      margin: 0.2rem 0;
+      font-size: 1.25rem;
+      font-weight: 600;
     }
-    .ribbon small{opacity:.8; font-weight:600}
 
-    main { max-width: 1050px; margin: 28px auto 80px; padding: 0 16px; }
+    main {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
 
     .toolbar {
-      display:flex; align-items:center; justify-content: space-between; flex-wrap:wrap; gap:12px; margin:.75rem 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 0.75rem 0;
     }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .btn {
-      appearance:none; border:1px solid #26304f; background:#0c1440; color:#dbeafe;
-      padding:.6rem .95rem; height:40px; min-width:132px; border-radius:12px; cursor:pointer; font-weight:700;
-      transition: all .15s ease-in-out; text-decoration:none;
+      appearance: none;
+      border: 1px solid #c2c8d6;
+      background: #f8f9fb;
+      color: var(--ink);
+      padding: 0.55rem 0.9rem;
+      height: 40px;
+      min-width: 130px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      line-height: 1.2;
+      text-align: center;
+      transition: all 0.15s ease-in-out;
+      text-decoration: none;
     }
-    .btn:hover { background:#122063; border-color:#325ad6; }
-    .btn.primary { background: #2563eb; border-color:#2563eb; color: #fff; }
-    .btn.primary:hover { background:#1f50c1; }
+    .btn:hover { background: #eaf0ff; border-color: var(--accent); }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover { background: #1f56c4; }
+
     .pill {
-      display:inline-block; padding:.35rem .7rem; border-radius:999px; background:#0d153f; border:1px solid #243163; color:#93c5fd; font-size:.85rem; font-weight:700;
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      background: #f0f4ff;
+      border: 1px solid #c8d4fa;
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .pill2 {
+      display: inline-block;
+      padding: 0.25rem 0.8rem;
+      border-radius: 10px;
+      background: #f0f4ff;
+      border: 1px solid #c8d4fa;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
     .card {
-      background: linear-gradient(180deg, #0f1630, #0c1227);
-      border: 1px solid #1e2a4a;
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: 16px;
       padding: 18px;
-      margin: 18px 0;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin: 20px 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
     }
 
-    .title { font-weight: 800; font-size:1.1rem; letter-spacing:.2px }
+    .title { font-weight: 700; }
     .muted { color: var(--ink-dim); }
 
-    .scenario-wrap { display:grid; gap:10px; }
+    .scenario-wrap {
+      display: grid;
+      gap: 8px;
+    }
     .scenario-label {
-      width:max-content; padding:.35rem .75rem; border-radius:999px;
-      background:#19213f; border:1px solid #2a3a76; color:#93c5fd; font-size:.8rem; font-weight:800; letter-spacing:.4px; text-transform:uppercase;
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: #e9f9ef;
+      border: 1px solid #c6ebd3;
+      color: #116a3d;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      width: max-content;
     }
-    .scenario{white-space:pre-wrap; color:#e5e7f3}
-
-    /* ===== PBQ 1: Kanban Drag ===== */
-    .kanban { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:10px; }
-    .lane {
-      border:1px dashed #2a355b; border-radius:14px; background:#0c1330; padding:10px; min-height:180px;
+    .scenario {
+      white-space: pre-wrap;
+      color: #2b2f3c;
     }
-    .lane h4 { margin:.2rem 0 .6rem; color:#bfdbfe; font-size:.98rem }
-    .cardlet {
-      background:#0b1337; border:1px solid #253568; border-radius:12px; padding:.55rem .65rem; margin:.4rem 0;
-      cursor:grab; box-shadow: 0 6px 16px rgba(0,0,0,.25);
+
+    .task { margin-top: 8px; }
+    .task h3 {
+      margin: 0.2rem 0 0.6rem;
+      font-size: 1.05rem;
+      color: var(--accent);
     }
-    .cardlet.dragging { opacity:.85; border-style: solid; outline:1px dashed #60a5fa }
-    .tag { display:inline-block; padding:.2rem .45rem; border-radius:999px; font-size:.72rem; background:#11193a; border:1px solid #23356a; color:#9cc1ff; margin-right:.35rem }
-    .meta { color:#9aa3b2; font-size:.85rem; margin-top:.3rem }
 
-    .feedback { margin-top:.6rem; border:1px solid #3b2352; background:#190e28; color:#f3e8ff; padding:.55rem .7rem; border-radius:10px; font-size:.95rem }
-    .result { margin-top:.6rem; font-weight:800 }
-    .result.correct{color:var(--ok)} .result.incorrect{color:var(--err)}
+    .options { display: grid; gap: 0.4rem; }
 
-    /* ===== PBQ 2: SBOM tri-state ===== */
-    table { width:100%; border-collapse:separate; border-spacing:0 }
-    th, td { padding:10px; border-bottom:1px solid #1f2b4b; }
-    th { color:#c7d2fe; text-align:left; background:#0e1739; position:sticky; top:0; }
-    .tri { display:flex; gap:6px }
-    .chip { background:var(--chip); border:1px solid #223362; padding:.15rem .5rem; border-radius:999px; font-size:.78rem; color:#c7d2fe }
+    .ordering { display: grid; gap: 0.5rem; }
 
-    /* ===== PBQ 3: Policy Fixer (toggle switches) ===== */
-    .switch { position:relative; display:inline-block; width:48px; height:26px; vertical-align:middle }
-    .switch input { display:none }
-    .slider { position:absolute; cursor:pointer; inset:0; background:#1a2345; border:1px solid #2a3a7a; border-radius:999px; transition:.2s }
-    .slider:before{content:""; position:absolute; height:20px; width:20px; left:3px; top:2px; background:#cbd5e1; border-radius:50%; transition:.2s}
-    .switch input:checked + .slider { background:#1b3f7a; border-color:#3b82f6 }
-    .switch input:checked + .slider:before { transform: translateX(21px); background:#bfdbfe }
+    .draggable {
+      padding: 0.6rem 0.7rem;
+      border: 1px dashed #b5bfd6;
+      border-radius: 10px;
+      background: #fafbfe;
+      cursor: grab;
+      transition: background 0.15s;
+    }
+    .draggable:hover { background: #eef3ff; }
+    .draggable.dragging { opacity: 0.8; border-style: solid; }
+    .draggable::before {
+      content: '⋮⋮';
+      color: #9aa8c0;
+      margin-right: 8px;
+      font-size: 14px;
+    }
 
-    .policy { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre; background:#0a112b; color:#d1d5db; border:1px solid #203061; border-radius:12px; padding:10px; margin-top:10px; max-height:260px; overflow:auto }
+    .result { margin-top: 10px; font-weight: 600; }
+    .correct { color: var(--ok); }
+    .incorrect { color: var(--err); }
 
-    /* ===== PBQ 4: Scan Strategy Matrix ===== */
-    .grid { display:grid; gap:10px }
-    @media(min-width:720px){ .grid.cols-2{ grid-template-columns: 1fr 1fr } }
+    .answer {
+      background: #f7f9ff;
+      border: 1px solid #d3daf4;
+      color: #2b2f3c;
+      padding: 0.6rem;
+      border-radius: 10px;
+      margin-top: 0.6rem;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid #f1c9cf;
+      background: #fff5f6;
+      color: #7a1e27;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      max-width: 900px;
+      margin: 40px auto 80px;
+      padding: 0 16px;
+      color: #707789;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
     select {
-      background:#0a1236; color:#dbeafe; border:1px solid #243362; padding:.45rem .55rem; border-radius:10px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1px solid #cbd2e0;
+      padding: 0.35rem 0.5rem;
+      border-radius: 8px;
+      margin: 0 0.35rem;
     }
-    select:focus{ outline:none; box-shadow:0 0 0 2px rgba(96,165,250,.3); border-color:#3b82f6 }
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(36, 99, 235, 0.2);
+    }
 
-    footer { max-width:1050px; margin: 16px auto 80px; padding: 0 16px; color:#9aa3b2; font-size:.9rem; text-align:center }
+    /* ====== PBQ 1 (Kanban) ====== */
+    .lanes { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+    .lane {
+      min-height: 160px; padding: 10px; border:1px dashed #c9d1e3; border-radius: 12px; background: var(--muted-bg);
+    }
+    .lane h4 { margin:.2rem 0 .5rem; color:#2b4aa6; }
+    .finding {
+      background:#fff; border:1px solid var(--line); border-radius: 12px; padding:.55rem .65rem; margin:.45rem 0;
+      cursor:grab; box-shadow: 0 4px 10px rgba(0,0,0,.04);
+    }
+    .finding.dragging { opacity:.85; border-style: solid; }
+    .chips { display:flex; gap:6px; flex-wrap:wrap; margin:.15rem 0 .25rem }
+    .chip { background:#eef2ff; border:1px solid #cdd7ff; color:#1f44b4; padding:.1rem .45rem; border-radius:999px; font-size:.75rem }
+    .meta { color: var(--ink-dim); font-size:.9rem }
+
+    /* ====== PBQ 4 (Matrix) ====== */
+    table { width:100%; border-collapse:separate; border-spacing:0 }
+    th, td { padding:10px; border-bottom:1px solid var(--line); text-align:left }
+    th { background:#f6f8ff; }
+
+    @media (max-width: 640px) {
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar-left, .toolbar-right { justify-content: center; }
+      .btn { flex: 1 1 auto; min-width: unset; }
+      .lanes { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="ribbon">
-      <span>Lesson 8 • Vulnerability Management</span>
-      <small>PBQ Set</small>
-    </div>
+    <div class="pill">Lesson 8 • Vulnerability Management</div>
 
     <div class="toolbar">
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a class="btn" href="lesson8_practice_questions.html" onclick="alert('Practice Qs coming soon');return false;">Practice Questions</a>
-        <a class="btn" href="audio_review.html" onclick="alert('Audio Review coming soon');return false;">Audio Review</a>
+      <div class="toolbar-left">
+        <a class="btn" href="lesson8_practice_questions.html" target="_blank">Practice Questions</a>
+        <a class="btn" href="audio_review.html" target="_blank">Audio Review</a>
       </div>
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div class="toolbar-right">
         <button class="btn" id="btnReset">Reset</button>
         <button class="btn primary" id="btnCheck">Check Answers</button>
       </div>
     </div>
   </header>
-
   <main>
-    <!-- Scenario -->
     <section class="card">
-      <div class="title">Weekly Risk Review @ AlohaTech</div>
-      <p class="muted">Your team runs continuous scanning across endpoints, servers, and cloud. You’ll triage findings, fix a risky storage policy, and design the right scan strategy.</p>
+      <div class="title" id="pbq_title">Weekly Risk Review @ KonaTech</div>
+      <div class="muted" id="lesson">Lesson 8 – Explain Vulnerability Management</div>
       <div class="scenario-wrap">
         <div class="scenario-label">Scenario</div>
-        <p class="scenario">
-You inherited a mixed environment (Windows/Linux, some EOL gear, multiple SaaS apps, and public cloud storage).
-A new scan and SBOM import flagged the items below. Your job: prioritize remediation, fix the obvious misconfig, and plan the next scan cycle.
-
-Assumptions:
-• Execs care about data exposure and downtime.
-• Patch windows are tight; compensating controls are allowed.
-• Verification (re-scan) is required for closure.
+        <p class="scenario" id="scenario">
+You’ve inherited a mixed environment (Windows/Linux servers, laptops, a few EOL systems, public cloud storage, and several SaaS apps).
+Your continuous scans and a fresh SBOM import flagged multiple issues. Leadership cares most about data exposure and keeping customer-facing apps up.
+Your job today: triage the findings, and pick sensible scan approaches/cadences for key assets. Verification (re-scan) is required for closure.
         </p>
       </div>
-      <div class="pill">Estimated time: ~12 min</div>
+      <div class="pill2" id="meta">Intermediate • ~10 min</div>
     </section>
 
-    <!-- ===== PBQ 1: Vulnerability Prioritization Kanban (drag to lanes) ===== -->
-    <section class="card" id="pbq1">
-      <div class="scenario-label">PBQ 1</div>
-      <h2 style="margin:.4rem 0 0">Triage: Drag each finding into the correct lane</h2>
-      <p class="muted">Lanes = <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), <b>Schedule</b> (next window). Use exploitability, exposure, and business impact.</p>
+    <section id="tasks"></section>
 
-      <div class="kanban">
-        <div class="lane" data-lane="NOW">
-          <h4>Fix Now</h4>
-        </div>
-        <div class="lane" data-lane="NEXT">
-          <h4>Fix Next</h4>
-        </div>
-        <div class="lane" data-lane="LATER">
-          <h4>Schedule</h4>
-        </div>
+    <!-- =================== PBQ 1: Vulnerability Triage (Kanban) =================== -->
+    <section class="card" id="pbq1">
+      <div class="scenario-label" style="background:#e9f3ff;border-color:#cfe0ff;color:#1b4cb8">PBQ 1</div>
+      <h2 style="margin:8px 0 2px">Drag each finding into the correct lane</h2>
+      <p class="muted" style="margin:0 0 8px">
+        Lanes: <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), <b>Schedule</b> (next standard window). Consider exploitability, exposure, and business impact.
+      </p>
+      <div class="lanes" style="margin-top:8px">
+        <div class="lane" data-lane="NOW"><h4>Fix Now</h4></div>
+        <div class="lane" data-lane="NEXT"><h4>Fix Next</h4></div>
+        <div class="lane" data-lane="LATER"><h4>Schedule</h4></div>
       </div>
-      <div style="margin-top:10px" id="pool"></div>
+      <div id="pool" style="margin-top:10px"></div>
       <div class="result" id="pbq1_result"></div>
       <div class="feedback" id="pbq1_fb" hidden></div>
     </section>
 
-    <!-- ===== PBQ 2: SBOM triage (tri-state) ===== -->
-    <section class="card" id="pbq2">
-      <div class="scenario-label">PBQ 2</div>
-      <h2 style="margin:.4rem 0 0">SBOM Hot-Spot Hunt</h2>
-      <p class="muted">Choose an action per component: <span class="chip">Immediate</span> | <span class="chip">Monitor</span> | <span class="chip">Ignore</span></p>
-
-      <div style="overflow-x:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Component</th><th>Version</th><th>Notes</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="sbom_tbody"></tbody>
-        </table>
-      </div>
-      <div class="result" id="pbq2_result"></div>
-      <div class="feedback" id="pbq2_fb" hidden></div>
-    </section>
-
-    <!-- ===== PBQ 3: Cloud Policy Fixer (toggle) ===== -->
-    <section class="card" id="pbq3">
-      <div class="scenario-label">PBQ 3</div>
-      <h2 style="margin:.4rem 0 0">Cloud Storage Misconfiguration — Fix the Policy</h2>
-      <p class="muted">Turn on the right safeguards. The preview updates live.</p>
-
-      <div class="grid cols-2">
-        <div>
-          <p style="margin:.2rem 0 .6rem"><b>Controls</b></p>
-          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
-            <span class="switch"><input type="checkbox" id="p_public" /><span class="slider"></span></span>
-            <span>Block public access (bucket-level deny)</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
-            <span class="switch"><input type="checkbox" id="p_principal" /><span class="slider"></span></span>
-            <span>Remove <code>Principal:"*"</code> from policy</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
-            <span class="switch"><input type="checkbox" id="p_encrypt" /><span class="slider"></span></span>
-            <span>Require encryption with KMS (SSE-KMS)</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;margin:.35rem 0">
-            <span class="switch"><input type="checkbox" id="p_version" /><span class="slider"></span></span>
-            <span>Enable object versioning</span>
-          </label>
-        </div>
-        <div>
-          <p style="margin:.2rem 0 .6rem"><b>Policy Preview</b></p>
-          <pre class="policy" id="policy_preview"></pre>
-        </div>
-      </div>
-      <div class="result" id="pbq3_result"></div>
-      <div class="feedback" id="pbq3_fb" hidden></div>
-    </section>
-
-    <!-- ===== PBQ 4: Scan Strategy Matrix ===== -->
+    <!-- =================== PBQ 4: Scan Strategy Matrix =================== -->
     <section class="card" id="pbq4">
-      <div class="scenario-label">PBQ 4</div>
-      <h2 style="margin:.4rem 0 0">Design the Scan Strategy</h2>
-      <p class="muted">Pick scan type & cadence per asset. Balance depth and practicality.</p>
-
+      <div class="scenario-label" style="background:#e9f3ff;border-color:#cfe0ff;color:#1b4cb8">PBQ 2</div>
+      <h2 style="margin:8px 0 2px">Design the scan strategy</h2>
+      <p class="muted" style="margin:0 0 8px">
+        Choose <b>scan type</b> and <b>cadence</b> per asset. Balance depth and practicality.
+      </p>
       <div style="overflow-x:auto">
         <table>
           <thead>
@@ -266,235 +321,290 @@ Assumptions:
   </main>
 
   <footer>
-    New interaction styles: kanban triage • tri-state SBOM • toggle policy fixer • strategy matrix. Built for Lesson 8 (identify → analyze → treat → verify).
+    Built for quick study-aid demos (Lesson 8). Triage + strategy = identify → analyze → treat → verify.
   </footer>
 
-<script>
-/* =================== Helpers =================== */
-const $  = (s,el=document)=>el.querySelector(s);
-const $$ = (s,el=document)=>Array.from(el.querySelectorAll(s));
+  <!-- Embedded PBQ JSON (kept minimal; renderer will ignore since we’re using custom PBQs) -->
+  <script type="application/json" id="pbq-data">{
+    "pbq_title": "Weekly Risk Review @ KonaTech",
+    "lesson": "Lesson 8 – Explain Vulnerability Management",
+    "scenario": "See above",
+    "tasks": [],
+    "concepts_tested": ["Prioritization","Scan strategy"],
+    "difficulty": "Intermediate",
+    "estimated_time_minutes": 10
+  }</script>
 
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  <script>
+/* tiny qs helpers */
+const $ = (sel, el=document) => el.querySelector(sel);
+const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
 
-/* =================== PBQ 1: Kanban =================== */
+let PBQ = null;
+let userAnswers = new Map();
+
+function loadPBQFromScriptTag(){
+  try{
+    const tag = document.getElementById('pbq-data');
+    PBQ = JSON.parse(tag.textContent);
+    renderAll();
+  }catch(err){
+    console.error('Embedded PBQ JSON parse failed:', err);
+    // It's ok if this fails; custom PBQs render regardless.
+  }
+}
+
+/* ---------- Renderer for legacy task types (none used now, but kept for compatibility) ---------- */
+function renderAll(){
+  if(!PBQ) return;
+  $('#pbq_title').textContent = PBQ.pbq_title || '—';
+  $('#lesson').textContent = PBQ.lesson || '—';
+  $('#scenario').textContent = PBQ.scenario || '—';
+  $('#meta').textContent = `${PBQ.difficulty || '—'} • ~${PBQ.estimated_time_minutes || '—'} min`;
+
+  const tasksWrap = $('#tasks');
+  tasksWrap.innerHTML = '';
+
+  (PBQ.tasks || []).forEach(task => {
+    if (task.type === 'multiple_choice') return; // MC not used here
+
+    const card = document.createElement('section');
+    card.className = 'card task';
+    card.dataset.taskId = task.task_id;
+
+    const typeLabel = task.type.replace('_',' ');
+    const title = document.createElement('h3');
+    title.textContent = `Task ${task.task_id} — Reference the Scenario: ${typeLabel}`;
+    card.appendChild(title);
+
+    const prompt = document.createElement('p');
+    prompt.textContent = `Reference the Scenario above: ${task.prompt}`;
+    card.appendChild(prompt);
+
+    if(task.type === 'ordering'){
+      const list = document.createElement('div'); list.className = 'ordering';
+      task.steps.forEach((s, idx)=>{
+        const div = document.createElement('div');
+        div.className = 'draggable';
+        div.draggable = true;
+        div.dataset.index = idx+1;
+        div.textContent = s;
+        list.appendChild(div);
+      });
+      enableDrag(list, task.task_id);
+      card.appendChild(list);
+
+      const result = document.createElement('div'); result.className = 'result'; card.appendChild(result);
+
+      const details = document.createElement('details');
+      const sum = document.createElement('summary'); sum.textContent = 'Rationale';
+      const ans = document.createElement('div'); ans.className = 'answer';
+      ans.textContent = task.correct_order.map(i=>task.steps[i-1]).join(' \u2192 ');
+      details.appendChild(sum); details.appendChild(ans);
+      details.hidden = true;
+      card.appendChild(details);
+    }
+
+    if(task.type === 'fill_in_dropdown'){
+      const p = document.createElement('p');
+      const parts = (task.sentence||'').split('______');
+      parts.forEach((text, idx)=>{
+        p.append(text);
+        if(idx < (task.blanks||[]).length){
+          const sel = document.createElement('select');
+          sel.dataset.blankId = task.blanks[idx].blank_id;
+          const ph = document.createElement('option'); ph.value=''; ph.textContent='— select —'; ph.disabled=true; ph.selected=true; sel.appendChild(ph);
+          task.blanks[idx].choices.forEach(choice=>{
+            const opt = document.createElement('option');
+            opt.value = choice; opt.textContent = choice;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener('change', ()=>{
+            const current = userAnswers.get(task.task_id) || {};
+            current[task.blanks[idx].blank_id] = sel.value;
+            userAnswers.set(task.task_id, current);
+          });
+          p.append(sel);
+        }
+      });
+      card.appendChild(p);
+
+      const result = document.createElement('div'); result.className = 'result'; card.appendChild(result);
+
+      const details = document.createElement('details');
+      const sum = document.createElement('summary'); sum.textContent = 'Rationale';
+      const ans = document.createElement('div'); ans.className = 'answer'; ans.textContent = task.rationale || '';
+      details.appendChild(sum); details.appendChild(ans);
+      details.hidden = true;
+      card.appendChild(details);
+    }
+
+    tasksWrap.appendChild(card);
+  });
+}
+
+/* ---------- Drag + order helpers (legacy) ---------- */
+function enableDrag(container, taskId){
+  let dragEl = null;
+  container.addEventListener('dragstart', e=>{
+    if(e.target.classList.contains('draggable')){
+      dragEl = e.target;
+      e.dataTransfer.effectAllowed='move';
+      e.target.classList.add('dragging');
+    }
+  });
+  container.addEventListener('dragend', ()=>{
+    if(dragEl){ dragEl.classList.remove('dragging'); dragEl = null; }
+    const order = $$('.draggable', container).map(d=>Number(d.dataset.index));
+    userAnswers.set(taskId, {order});
+  });
+  container.addEventListener('dragover', e=>{
+    e.preventDefault();
+    const after = getDragAfterElement(container, e.clientY);
+    const dragging = $('.draggable.dragging', container);
+    if(!dragging) return;
+    if(after == null){ container.appendChild(dragging); }
+    else { container.insertBefore(dragging, after); }
+  });
+}
+function getDragAfterElement(container, y){
+  const els = $$('.draggable:not(.dragging)', container);
+  let closest = {offset: Number.NEGATIVE_INFINITY, element: null};
+  els.forEach(el=>{
+    const box = el.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if(offset < 0 && offset > closest.offset){ closest = {offset, element: el}; }
+  });
+  return closest.element;
+}
+
+/* ---------- Global grading/feedback shell (legacy tasks) ---------- */
+function checkAnswersLegacy(){
+  (PBQ?.tasks || []).forEach(task=>{
+    if (task.type === 'multiple_choice') return;
+
+    const card = document.querySelector(`.task[data-task-id="${task.task_id}"]`);
+    const result = card?.querySelector('.result');
+    const details = card?.querySelector('details');
+    if(result) result.textContent = '';
+    if(details) details.hidden = true;
+
+    if(task.type === 'ordering'){
+      let order = userAnswers.get(task.task_id)?.order;
+      if(!order){
+        const list = card.querySelector('.ordering');
+        order = Array.from(list.querySelectorAll('.draggable')).map(d=>Number(d.dataset.index));
+      }
+      const ok = JSON.stringify(order) === JSON.stringify(task.correct_order);
+      result.textContent = ok ? 'Correct order ✓' : 'Incorrect order ✗';
+      result.className = 'result ' + (ok ? 'correct' : 'incorrect');
+      if(!ok && details) details.hidden = false;
+      return;
+    }
+
+    if(task.type === 'fill_in_dropdown'){
+      let answers = userAnswers.get(task.task_id) || {};
+      const selects = card.querySelectorAll('select[data-blank-id]');
+      selects.forEach(s => answers[s.dataset.blankId] = s.value);
+      let ok = (task.blanks||[]).every(b => answers[b.blank_id] === b.answer);
+      result.textContent = ok ? 'Correct ✓' : 'Incorrect ✗';
+      result.className = 'result ' + (ok ? 'correct' : 'incorrect');
+      if(!ok && details) details.hidden = false;
+      return;
+    }
+  });
+}
+
+/* =================== PBQ 1: Vulnerability Triage (Kanban) =================== */
 const FINDINGS = [
-  { id:'F1', title:'Public S3 bucket listing PII', tags:['Cloud','Exposure'], meta:'Impact: High • Exploit: N/A (misconfig)', expect:'NOW',
-    why:'Public data exposure is actively leaking; fix config immediately (deny public, block ACLs).'},
-  { id:'F2', title:'DB-01: CVE-2023-____ (CVSS 9.8), exploit in wild', tags:['Server','Critical'], meta:'Impact: High • Exploit: Yes', expect:'NOW',
-    why:'Critical RCE with known exploit on a high-value system merits emergency patch/compensating control.'},
-  { id:'F3', title:'HR-LAP12: CVE-2024-____ (8.1), PoC only', tags:['Endpoint'], meta:'Impact: Low • Exploit: PoC', expect:'NEXT',
-    why:'High-severity but lower business impact and only PoC → fix in sprint after urgent items.'},
-  { id:'F4', title:'WEB-02: Deprecated 3DES enabled', tags:['Crypto','Config'], meta:'Impact: Medium • Exploit: Weak cipher', expect:'NEXT',
-    why:'Replace deprecated cipher soon; not typically a same-day outage unless policy demands.'},
-  { id:'F5', title:'Legacy backup server (EOL OS) isolated', tags:['EOL','Legacy'], meta:'Impact: Medium • Compensating: network-seg', expect:'LATER',
-    why:'If segmented and stable, plan upgrade/migration with change window.'}
+  { id:'F1', title:'Public cloud bucket allows listing + read of PII', tags:['Cloud','Exposure'], meta:'Impact: High • Exploit: Live (misconfig)', expect:'NOW',
+    why:'Public data exposure can leak immediately; block public and fix policy now.'},
+  { id:'F2', title:'DB-01: Critical RCE with exploit in the wild (CVSS 9.8)', tags:['Server','Critical'], meta:'Impact: High • Exploit: Yes', expect:'NOW',
+    why:'High-value system with known exploit → emergency patch or compensating control.'},
+  { id:'F3', title:'HR-LAP12: High severity vuln (8.1), PoC only', tags:['Endpoint'], meta:'Impact: Low • Exploit: PoC', expect:'NEXT',
+    why:'Lower business impact + PoC only → fix in sprint after urgent items.'},
+  { id:'F4', title:'WEB-02: Deprecated 3DES still enabled', tags:['Crypto','Config'], meta:'Impact: Medium • Exploit: Weak cipher', expect:'NEXT',
+    why:'Replace deprecated cipher; typically not same-day unless mandated.'},
+  { id:'F5', title:'Legacy backup server on EOL OS (segmented)', tags:['EOL','Legacy'], meta:'Impact: Medium • Segmented', expect:'LATER',
+    why:'Plan upgrade/migration in standard window if properly isolated.'}
 ];
 
 let KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL:[] };
 
-function renderKanban(){
-  const lanes = { NOW:$('[data-lane="NOW"]'), NEXT:$('[data-lane="NEXT"]'), LATER:$('[data-lane="LATER"]') };
-  Object.values(lanes).forEach(l=> l.querySelectorAll('.cardlet').forEach(el=>el.remove()));
-  $('#pool').innerHTML = '';
-
-  for(const lane of ['NOW','NEXT','LATER']){
-    KANBAN_STATE[lane].forEach(f => lanes[lane].appendChild(makeCardlet(f)));
-  }
-  KANBAN_STATE.POOL.forEach(f => $('#pool').appendChild(makeCardlet(f)));
-
-  // Empty hints
-  for(const lane of ['NOW','NEXT','LATER']){
-    if(!KANBAN_STATE[lane].length){
-      const ghost = document.createElement('div');
-      ghost.className='muted';
-      ghost.style.fontStyle='italic'; ghost.textContent='Drag here';
-      lanes[lane].appendChild(ghost);
-    }
-  }
-}
-
-function makeCardlet(f){
+function makeFindingCard(f){
   const el = document.createElement('div');
-  el.className='cardlet'; el.draggable=true; el.dataset.id=f.id;
-  el.innerHTML = `<div><span class="tag">${f.tags.join('</span> <span class="tag">')}</span></div>
-    <div style="font-weight:700;margin-top:.2rem">${f.title}</div>
+  el.className='finding'; el.draggable=true; el.dataset.id=f.id;
+  el.innerHTML = `
+    <div class="chips">${f.tags.map(t=>`<span class="chip">${t}</span>`).join(' ')}</div>
+    <div style="font-weight:700">${f.title}</div>
     <div class="meta">${f.meta}</div>`;
   el.addEventListener('dragstart', e=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', f.id); });
   el.addEventListener('dragend', ()=> el.classList.remove('dragging'));
   return el;
 }
 
+function renderKanban(){
+  const lanes = { NOW:$('[data-lane="NOW"]'), NEXT:$('[data-lane="NEXT"]'), LATER:$('[data-lane="LATER"]') };
+  Object.values(lanes).forEach(l=> l.querySelectorAll('.finding').forEach(el=>el.remove()));
+  $('#pool').innerHTML = '';
+  for(const lane of ['NOW','NEXT','LATER']){
+    if(!KANBAN_STATE[lane].length){
+      const ghost = document.createElement('div');
+      ghost.className='muted'; ghost.style.fontStyle='italic'; ghost.textContent='Drag here';
+      lanes[lane].appendChild(ghost);
+    }
+    KANBAN_STATE[lane].forEach(f => lanes[lane].appendChild(makeFindingCard(f)));
+  }
+  KANBAN_STATE.POOL.forEach(f => $('#pool').appendChild(makeFindingCard(f)));
+}
+
 function setupDnd(){
-  const dropZones = [ $('[data-lane="NOW"]'), $('[data-lane="NEXT"]'), $('[data-lane="LATER"]'), $('#pool') ];
-  dropZones.forEach(zone=>{
-    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.style.outline='1px dashed #60a5fa'; });
+  const zones = [ $('[data-lane="NOW"]'), $('[data-lane="NEXT"]'), $('[data-lane="LATER"]'), $('#pool') ];
+  zones.forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.style.outline='1px dashed #7aa0ff'; });
     zone.addEventListener('dragleave', ()=> zone.style.outline='none');
     zone.addEventListener('drop', e=>{
       e.preventDefault(); zone.style.outline='none';
       const id = e.dataTransfer.getData('text/plain');
-      moveFindingTo(zone.id ? 'POOL' : zone.dataset.lane, id);
+      moveTo(zone.id ? 'POOL' : zone.dataset.lane, id);
       renderKanban();
     });
   });
 }
-
-function moveFindingTo(targetLane, id){
+function moveTo(target, id){
   for(const lane of ['NOW','NEXT','LATER','POOL']){
     const i = KANBAN_STATE[lane].findIndex(x=>x.id===id);
     if(i>=0){ KANBAN_STATE[lane].splice(i,1); break; }
   }
-  KANBAN_STATE[targetLane].push(FINDINGS.find(x=>x.id===id));
+  KANBAN_STATE[target].push(FINDINGS.find(x=>x.id===id));
 }
 
 function initKanban(){
-  KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL: shuffle([...FINDINGS]) };
+  KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL: [...FINDINGS].sort(()=>Math.random()-0.5) };
   renderKanban(); setupDnd();
 }
-
 function gradeKanban(){
-  let correct=0, total=FINDINGS.length;
-  const fbLines=[];
+  let correct=0, total=FINDINGS.length; const fb=[];
   for(const lane of ['NOW','NEXT','LATER']){
     for(const f of KANBAN_STATE[lane]){
-      if(lane===f.expect) { correct++; }
-      else { fbLines.push(`• ${f.title}: should be in ${f.expect}. ${f.why}`); }
+      if(lane===f.expect) correct++; else fb.push(`• ${f.title}: should be in ${f.expect}. ${f.why}`);
     }
   }
   $('#pbq1_result').textContent = `${correct}/${total} placed correctly`;
   $('#pbq1_result').className = 'result ' + (correct===total ? 'correct' : 'incorrect');
-  const fb = $('#pbq1_fb');
-  if(fbLines.length){ fb.hidden=false; fb.innerHTML = fbLines.join('<br>'); } else { fb.hidden=true; fb.textContent=''; }
-}
-
-/* =================== PBQ 2: SBOM Tri-State =================== */
-const SBOM_ROWS = [
-  { comp:'log4j-core', ver:'2.14.1', note:'CVE-2021-44228 (Critical)', expect:'Immediate',
-    why:'Upgrade to ≥2.17.x or vendor guidance; widely exploited.'},
-  { comp:'OpenSSL', ver:'1.0.2u', note:'EOL series', expect:'Immediate',
-    why:'EOL no fixes; move to supported LTS.'},
-  { comp:'React', ver:'17.0.2', note:'No security note', expect:'Monitor',
-    why:'Normal dependency; monitor release notes.'},
-  { comp:'libxml2', ver:'2.9.10', note:'Low-sev CVE; no exploit', expect:'Schedule',
-    why:'Patch in next window; low severity.'}
-];
-const SBOM_CHOICES = ['Immediate','Monitor','Schedule','Ignore'];
-
-function renderSBOM(){
-  const tb = $('#sbom_tbody'); tb.innerHTML='';
-  SBOM_ROWS.forEach((r, idx)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><b>${r.comp}</b></td>
-      <td>${r.ver}</td>
-      <td class="muted">${r.note}</td>
-      <td>
-        <div class="tri">
-          <select data-idx="${idx}">
-            ${['','Immediate','Monitor','Schedule','Ignore'].map(v=>`<option value="${v}" ${v===''?'selected':''} ${v===''?'disabled':''}>${v||'— select —'}</option>`).join('')}
-          </select>
-          <span class="chip">expected: ?</span>
-        </div>
-      </td>`;
-    tb.appendChild(tr);
-  });
-}
-
-function gradeSBOM(){
-  let correct=0, total=SBOM_ROWS.length; const fb=[];
-  $$('#sbom_tbody select').forEach(sel=>{
-    const idx = Number(sel.dataset.idx), row = SBOM_ROWS[idx];
-    const v = sel.value;
-    const chip = sel.parentElement.querySelector('.chip');
-    if(!v){ /* not answered */ chip.textContent='expected: ?'; return; }
-    if(v===row.expect){ correct++; chip.textContent='✓'; chip.style.color='#34d399'; }
-    else { chip.textContent=`✗`; chip.style.color='#f87171'; fb.push(`• ${row.comp}: choose “${row.expect}”. ${row.why}`); }
-  });
-  $('#pbq2_result').textContent = `${correct}/${total} correct`;
-  $('#pbq2_result').className = 'result ' + (correct===total ? 'correct' : 'incorrect');
-  const el = $('#pbq2_fb');
-  if(fb.length){ el.hidden=false; el.innerHTML=fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
-}
-
-/* =================== PBQ 3: Cloud Policy Fixer (toggles) =================== */
-function policyPreview(){
-  const cfg = {
-    blockPublic: $('#p_public').checked,
-    removeStar:  $('#p_principal').checked,
-    encrypt:     $('#p_encrypt').checked,
-    versioning:  $('#p_version').checked
-  };
-
-  const policy = {
-    "Version": "2012-10-17",
-    "Statement": [
-      cfg.removeStar ? {
-        "Sid": "AllowLeastPrivilege",
-        "Effect": "Allow",
-        "Principal": {"AWS":"arn:aws:iam::123456789012:role/AppRole"},
-        "Action": ["s3:GetObject"],
-        "Resource": ["arn:aws:s3:::company-data/*"],
-        "Condition": {"StringEquals":{"aws:PrincipalOrgID":"o-abc123"}}
-      } : {
-        "Sid": "OverPermissive",
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": "s3:*",
-        "Resource": "arn:aws:s3:::company-data/*"
-      },
-      cfg.blockPublic ? {
-        "Sid": "DenyPublic",
-        "Effect": "Deny",
-        "Principal": "*",
-        "Action": ["s3:PutBucketAcl","s3:PutBucketPolicy","s3:PutObjectAcl"],
-        "Resource": ["arn:aws:s3:::company-data","arn:aws:s3:::company-data/*"],
-        "Condition":{"Bool":{"aws:SecureTransport":"false"}}
-      } : null
-    ].filter(Boolean)
-  };
-
-  const lines = [];
-  if(cfg.encrypt){
-    lines.push(`SSE: KMS required (aws:kms)`);
-  }
-  if(cfg.versioning){
-    lines.push(`Versioning: Enabled`);
-  }
-  $('#policy_preview').textContent = JSON.stringify(policy, null, 2) + (lines.length? `\n\n# Bucket settings\n${lines.map(l=>'• '+l).join('\n')}`:'');
-}
-
-['p_public','p_principal','p_encrypt','p_version'].forEach(id=>{
-  document.addEventListener('change', (e)=>{ if(e.target && e.target.id===id){ policyPreview(); }});
-});
-
-function gradePolicy(){
-  const need = {
-    public: $('#p_public').checked,
-    principal: $('#p_principal').checked,
-    encrypt: $('#p_encrypt').checked
-  };
-  let score = 0; const fb=[];
-  if(need.public){ score++; } else fb.push('• Add a deny public / block public access control.');
-  if(need.principal){ score++; } else fb.push('• Remove overly permissive Principal:"*".');
-  if(need.encrypt){ score++; } else fb.push('• Require SSE-KMS encryption at rest.');
-  // versioning is nice-to-have
-  if($('#p_version').checked){ score += .25; }
-
-  $('#pbq3_result').textContent = `${score}/3.25 controls selected`;
-  $('#pbq3_result').className = 'result ' + (score>=3 ? 'correct' : 'incorrect');
-  const el = $('#pbq3_fb');
-  if(fb.length){ el.hidden=false; el.innerHTML = fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
+  const el = $('#pbq1_fb'); if(fb.length){ el.hidden=false; el.innerHTML=fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
 }
 
 /* =================== PBQ 4: Scan Strategy Matrix =================== */
 const ASSETS = [
   { name:'DMZ Web Server', ctx:'Customer-facing, change-prone', expectType:'Credentialed', expectCadence:'Weekly',
-    why:'Depth to verify patches/config; public exposure → frequent.'},
+    why:'Credentialed checks confirm patches/configs; internet exposure → frequent.'},
   { name:'Finance DB', ctx:'High impact, restricted window', expectType:'Credentialed', expectCadence:'Weekly',
-    why:'Critical data; credentialed checks detect missing patches & configs.'},
-  { name:'Partner-exposed API GW', ctx:'Internet-accessible, rate-limited', expectType:'Non-credentialed', expectCadence:'Daily',
-    why:'Perimeter view to catch exposed vulns; lightweight but frequent.'},
+    why:'Critical data; depth matters to detect misconfig/missing patches.'},
+  { name:'Partner API Gateway', ctx:'Internet-accessible, rate-limited', expectType:'Non-credentialed', expectCadence:'Daily',
+    why:'Perimeter view to catch exposed vulns; lightweight but frequent scans.'},
   { name:'EOL Backup Host (segmented)', ctx:'Legacy, isolated segment', expectType:'Credentialed', expectCadence:'Bi-weekly',
-    why:'Deeper view helps identify compensating controls; lower cadence if isolated.'}
+    why:'Deeper inspection for compensating controls; slightly lower cadence if isolated.'}
 ];
 const TYPES = ['Credentialed','Non-credentialed'];
 const CAD   = ['Daily','Weekly','Bi-weekly','Monthly'];
@@ -506,62 +616,57 @@ function renderScanMatrix(){
     tr.innerHTML = `
       <td><b>${a.name}</b></td>
       <td class="muted">${a.ctx}</td>
-      <td><select data-i="${i}" data-k="t">${['','Credentialed','Non-credentialed'].map(v=>`<option ${v===''?'selected disabled':''} value="${v}">${v||'— select —'}</option>`).join('')}</select></td>
-      <td><select data-i="${i}" data-k="c">${['','Daily','Weekly','Bi-weekly','Monthly'].map(v=>`<option ${v===''?'selected disabled':''} value="${v}">${v||'— select —'}</option>`).join('')}</select></td>
-    `;
+      <td>
+        <select data-i="${i}" data-k="t">
+          <option value="" selected disabled>— select —</option>
+          ${TYPES.map(v=>`<option value="${v}">${v}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select data-i="${i}" data-k="c">
+          <option value="" selected disabled>— select —</option>
+          ${CAD.map(v=>`<option value="${v}">${v}</option>`).join('')}
+        </select>
+      </td>`;
     tb.appendChild(tr);
   });
 }
-
 function gradeScanMatrix(){
   let correct=0, total=ASSETS.length*2; const fb=[];
   $$('#scan_tbody select').forEach(sel=>{
-    const i = Number(sel.dataset.i), k = sel.dataset.k, row = ASSETS[i];
-    const v = sel.value;
+    const i = Number(sel.dataset.i), k = sel.dataset.k, row = ASSETS[i], v = sel.value;
     if(!v) return;
-    if(k==='t'){
-      if(v===row.expectType) correct++;
-      else fb.push(`• ${row.name}: use ${row.expectType}. ${row.why}`);
-    } else {
-      if(v===row.expectCadence) correct++;
-      else fb.push(`• ${row.name}: cadence ${row.expectCadence}. ${row.why}`);
-    }
+    if(k==='t'){ if(v===row.expectType) correct++; else fb.push(`• ${row.name}: use ${row.expectType}. ${row.why}`); }
+    else { if(v===row.expectCadence) correct++; else fb.push(`• ${row.name}: cadence ${row.expectCadence}. ${row.why}`); }
   });
   $('#pbq4_result').textContent = `${correct}/${total} selections correct`;
   $('#pbq4_result').className = 'result ' + (correct===total ? 'correct' : 'incorrect');
-  const el = $('#pbq4_fb');
-  if(fb.length){ el.hidden=false; el.innerHTML=fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
+  const el = $('#pbq4_fb'); if(fb.length){ el.hidden=false; el.innerHTML=fb.join('<br>'); } else { el.hidden=true; el.textContent=''; }
 }
 
 /* =================== Global Check/Reset =================== */
 function checkAll(){
+  checkAnswersLegacy();     // (no-ops if no legacy tasks)
   gradeKanban();
-  gradeSBOM();
-  gradePolicy();
   gradeScanMatrix();
 }
 function resetAll(){
-  // PBQ1
+  userAnswers.clear();
+  renderAll();
   initKanban();
-  $('#pbq1_result').textContent=''; $('#pbq1_fb').hidden=true; $('#pbq1_fb').textContent='';
-  // PBQ2
-  renderSBOM(); $('#pbq2_result').textContent=''; $('#pbq2_fb').hidden=true; $('#pbq2_fb').textContent='';
-  // PBQ3
-  ['p_public','p_principal','p_encrypt','p_version'].forEach(id=>{ const el = $('#'+id); el.checked=false; });
-  policyPreview(); $('#pbq3_result').textContent=''; $('#pbq3_fb').hidden=true; $('#pbq3_fb').textContent='';
-  // PBQ4
-  renderScanMatrix(); $('#pbq4_result').textContent=''; $('#pbq4_fb').hidden=true; $('#pbq4_fb').textContent='';
+  renderScanMatrix();
+  // clear results
+  ['pbq1_result','pbq4_result'].forEach(id=>{ const n = document.getElementById(id); if(n) n.textContent=''; });
+  ['pbq1_fb','pbq4_fb'].forEach(id=>{ const n = document.getElementById(id); if(n){ n.hidden=true; n.textContent=''; } });
 }
 
 window.addEventListener('DOMContentLoaded', ()=>{
+  loadPBQFromScriptTag();
   initKanban();
-  renderSBOM();
-  policyPreview();
   renderScanMatrix();
-
-  $('#btnCheck').addEventListener('click', checkAll);
-  $('#btnReset').addEventListener('click', resetAll);
+  document.getElementById('btnCheck')?.addEventListener('click', checkAll);
+  document.getElementById('btnReset')?.addEventListener('click', resetAll);
 });
-</script>
+  </script>
 </body>
 </html>
