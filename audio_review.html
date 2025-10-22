@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lesson 8 Audio Review</title>
+<style>
+  :root{
+    --bg:#f6f8fc;
+    --card:#ffffff;
+    --ink:#1b1f2f;
+    --ink-dim:#55607a;
+    --accent:#2463eb;
+    --line:#e2e6ef;
+    --chip:#eef3ff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font:16px/1.55 "Segoe UI", Roboto, system-ui, -apple-system, Arial, sans-serif;
+    color:var(--ink); background:var(--bg);
+  }
+
+  /* Hero */
+  header{
+    background: radial-gradient(1200px 300px at 50% -50%, #eaf1ff 0%, #f6f8fc 60%, #f6f8fc 100%);
+    border-bottom:1px solid var(--line);
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:26px 20px;}
+  .kicker{color:var(--accent); font-weight:700; letter-spacing:.04em; font-size:.85rem}
+  h1{margin:.35rem 0 0; font-size:1.7rem;}
+  .sub{margin:.4rem 0 0; color:var(--ink-dim)}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin:.8rem 0 0}
+  .chip{background:var(--chip); border:1px solid #d6e2ff; color:#244a99; padding:.25rem .6rem; border-radius:999px; font-size:.85rem}
+
+  /* Card */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:18px; margin:22px 0; box-shadow:0 4px 18px rgba(0,0,0,.04);
+  }
+  h2{font-size:1.15rem; margin:.1rem 0 .7rem; color:var(--accent)}
+
+  /* Audio section */
+  .player{
+    display:grid; grid-template-columns:96px 1fr; gap:16px; align-items:center;
+  }
+  .cover{
+    width:96px; height:96px; border-radius:12px; background:
+      linear-gradient(135deg,#cfe0ff,#f3f7ff);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-weight:700; color:#244a99;
+  }
+  .meta > .title{font-weight:700; font-size:1.05rem}
+  .meta > .desc{color:#1b1f2f; margin:.25rem 0 .2rem; font-weight:600}
+  .meta > .subtle{color:var(--ink-dim); margin:.1rem 0 .6rem}
+  audio{width:100%}
+
+  /* Actions */
+  .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:.8rem}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+    padding:.55rem .9rem; border:1px solid #c9d2ea; background:#f8f9fb;
+    border-radius:10px; color:var(--ink); text-decoration:none; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .btn:hover{background:#eaf0ff; border-color:var(--accent)}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btn.primary:hover{background:#1f56c4}
+
+  /* Notes */
+  .note{color:var(--ink-dim); font-size:.95rem}
+  .list{margin:.6rem 0 0; padding-left:1.1rem}
+
+  footer{border-top:1px solid var(--line); color:#6a738a}
+  .foot{max-width:960px; margin:0 auto; padding:20px}
+
+  @media (max-width:640px){ .player{grid-template-columns:1fr} .cover{width:76px; height:76px} }
+  @media print{ header, .actions, .note a{display:none !important} .card{page-break-inside:avoid} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">CompTIA Security+ • Lesson 8</div>
+    <h1>Audio Review</h1>
+    <p class="sub">Vulnerability Management focus. Use this short review alongside your study guide and PBQs.</p>
+    <div class="chips">
+      <div class="chip">Format: M4A</div>
+      <div class="chip">Approx. length: 8 minutes</div>
+      <div class="chip">Topic: scans, CVSS, SBOM, OSINT, remediation</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card">
+    <h2>Listen</h2>
+    <div class="player">
+      <div class="cover" aria-hidden="true">L8</div>
+      <div class="meta">
+        <div class="title">Lesson 8 Audio Review — Vulnerability Management</div>
+        <div class="desc">Plays directly in the browser</div>
+        <div class="subtle">Tip: set speed to 1.25× for a quick refresher</div>
+        <audio controls preload="metadata">
+          <!-- Replace the src with your actual path if different -->
+          <source src="assets/audio/lesson8_review.m4a" type="audio/mp4">
+          <source src="assets/audio/lesson8_review.m4a" type="audio/x-m4a">
+          <!-- Optional mp3 fallback if you export one -->
+          <!-- <source src="assets/audio/lesson8_review.mp3" type="audio/mpeg"> -->
+          Your browser does not support the audio element.
+        </audio>
+        <div class="actions">
+          <a class="btn primary" href="assets/audio/lesson8_review.m4a" download>Download M4A</a>
+          <a class="btn" target="_blank" href="assets/audio/lesson8_review.m4a">Open in new tab</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this review covers</h2>
+    <p class="note">The recording summarizes key Lesson 8 objectives so you can refresh quickly before practice questions or PBQs:</p>
+    <ul class="list">
+      <li><b>Scan types:</b> credentialed vs. non-credentialed; internal vs. external; agent-based vs. network</li>
+      <li><b>Prioritization:</b> CVSS base/temporal, exploit maturity, business impact, exposure (internet-facing/PII)</li>
+      <li><b>Software supply chain:</b> SBOM deltas, package monitoring, and verifying patches</li>
+      <li><b>Threat intel & OSINT:</b> open vs. proprietary feeds, attacker’s-eye validation, false-positive reduction</li>
+      <li><b>Remediation workflow:</b> patch/config, compensating controls, maintenance windows, <i>verify via re-scan</i></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot">© ITM-433</div>
+</footer>
+
+</body>
+</html>
