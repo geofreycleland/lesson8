@@ -99,19 +99,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    .pill2 {
-      display: inline-block;
-      padding: 0.25rem 0.8rem;
-      border-radius: 10px;
-      background: #f0f4ff;
-      border: 1px solid #c8d4fa;
-      color: var(--accent);
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
     .card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -146,46 +133,9 @@
       color: #2b2f3c;
     }
 
-    .task { margin-top: 8px; }
-    .task h3 {
-      margin: 0.2rem 0 0.6rem;
-      font-size: 1.05rem;
-      color: var(--accent);
-    }
-
-    .options { display: grid; gap: 0.4rem; }
-
-    .ordering { display: grid; gap: 0.5rem; }
-
-    .draggable {
-      padding: 0.6rem 0.7rem;
-      border: 1px dashed #b5bfd6;
-      border-radius: 10px;
-      background: #fafbfe;
-      cursor: grab;
-      transition: background 0.15s;
-    }
-    .draggable:hover { background: #eef3ff; }
-    .draggable.dragging { opacity: 0.8; border-style: solid; }
-    .draggable::before {
-      content: '⋮⋮';
-      color: #9aa8c0;
-      margin-right: 8px;
-      font-size: 14px;
-    }
-
     .result { margin-top: 10px; font-weight: 600; }
     .correct { color: var(--ok); }
     .incorrect { color: var(--err); }
-
-    .answer {
-      background: #f7f9ff;
-      border: 1px solid #d3daf4;
-      color: #2b2f3c;
-      padding: 0.6rem;
-      border-radius: 10px;
-      margin-top: 0.6rem;
-    }
 
     .feedback {
       margin-top: 6px;
@@ -223,9 +173,10 @@
     /* ====== PBQ 1 (Kanban) ====== */
     .lanes { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
     .lane {
-      min-height: 160px; padding: 10px; border:1px dashed #c9d1e3; border-radius: 12px; background: var(--muted-bg);
+      min-height: 160px; padding: 10px; border:1px dashed #c9d1e3; border-radius: 12px; background: var(--muted-bg); position:relative;
     }
     .lane h4 { margin:.2rem 0 .5rem; color:#2b4aa6; }
+    .ghost { position:relative; padding:.3rem .5rem; font-style:italic; color:#5c6373 }
     .finding {
       background:#fff; border:1px solid var(--line); border-radius: 12px; padding:.55rem .65rem; margin:.45rem 0;
       cursor:grab; box-shadow: 0 4px 10px rgba(0,0,0,.04);
@@ -266,27 +217,34 @@
   </header>
   <main>
     <section class="card">
-      <div class="title" id="pbq_title">Weekly Risk Review @ KonaTech</div>
+      <div class="title" id="pbq_title">KonaTech — Weekly Risk Review</div>
       <div class="muted" id="lesson">Lesson 8 – Explain Vulnerability Management</div>
       <div class="scenario-wrap">
         <div class="scenario-label">Scenario</div>
         <p class="scenario" id="scenario">
-You’ve inherited a mixed environment (Windows/Linux servers, laptops, a few EOL systems, public cloud storage, and several SaaS apps).
-Your continuous scans and a fresh SBOM import flagged multiple issues. Leadership cares most about data exposure and keeping customer-facing apps up.
-Your job today: triage the findings, and pick sensible scan approaches/cadences for key assets. Verification (re-scan) is required for closure.
+KonaTech runs continuous vulnerability scanning and imports vendor SBOMs. This week’s rollup includes exploitable CVEs,
+a public cloud storage misconfiguration, legacy/EOL infrastructure, and internet-exposed assets.
+
+Priorities from leadership:
+• Minimize data exposure risk, especially from public cloud storage. 
+• Keep customer-facing services available (tight maintenance windows).
+• Use compensating controls when patching is not immediately feasible.
+• Close out items only after verification via re-scan.
+
+Your tasks:
+1) Triage findings by urgency using exploit maturity, exposure, and business impact.
+2) Choose an appropriate scan type (credentialed vs. non-credentialed) and cadence per asset, balancing depth and practicality.
         </p>
       </div>
-      <div class="pill2" id="meta">Intermediate • ~10 min</div>
+      <!-- removed "Intermediate" / time pill per request -->
     </section>
-
-    <section id="tasks"></section>
 
     <!-- =================== PBQ 1: Vulnerability Triage (Kanban) =================== -->
     <section class="card" id="pbq1">
       <div class="scenario-label" style="background:#e9f3ff;border-color:#cfe0ff;color:#1b4cb8">PBQ 1</div>
       <h2 style="margin:8px 0 2px">Drag each finding into the correct lane</h2>
       <p class="muted" style="margin:0 0 8px">
-        Lanes: <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), <b>Schedule</b> (next standard window). Consider exploitability, exposure, and business impact.
+        Lanes: <b>Fix Now</b> (same day), <b>Fix Next</b> (within sprint), <b>Schedule</b> (next standard window). Consider exploitability, exposure, business impact, and maintenance windows.
       </p>
       <div class="lanes" style="margin-top:8px">
         <div class="lane" data-lane="NOW"><h4>Fix Now</h4></div>
@@ -303,7 +261,7 @@ Your job today: triage the findings, and pick sensible scan approaches/cadences 
       <div class="scenario-label" style="background:#e9f3ff;border-color:#cfe0ff;color:#1b4cb8">PBQ 2</div>
       <h2 style="margin:8px 0 2px">Design the scan strategy</h2>
       <p class="muted" style="margin:0 0 8px">
-        Choose <b>scan type</b> and <b>cadence</b> per asset. Balance depth and practicality.
+        Choose <b>scan type</b> and <b>cadence</b> per asset. Use <b>credentialed</b> scans for deeper configuration/patch validation and <b>non-credentialed</b> for the external “attacker’s-eye” view. Verification via <b>re-scan</b> is required for closure.
       </p>
       <div style="overflow-x:auto">
         <table>
@@ -321,212 +279,26 @@ Your job today: triage the findings, and pick sensible scan approaches/cadences 
   </main>
 
   <footer>
-    Built for quick study-aid demos (Lesson 8). Triage + strategy = identify → analyze → treat → verify.
+    Triage + strategy = identify → analyze → treat (patch/config/compensating controls) → verify (re-scan).
   </footer>
-
-  <!-- Embedded PBQ JSON (kept minimal; renderer will ignore since we’re using custom PBQs) -->
-  <script type="application/json" id="pbq-data">{
-    "pbq_title": "Weekly Risk Review @ KonaTech",
-    "lesson": "Lesson 8 – Explain Vulnerability Management",
-    "scenario": "See above",
-    "tasks": [],
-    "concepts_tested": ["Prioritization","Scan strategy"],
-    "difficulty": "Intermediate",
-    "estimated_time_minutes": 10
-  }</script>
 
   <script>
 /* tiny qs helpers */
 const $ = (sel, el=document) => el.querySelector(sel);
 const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
 
-let PBQ = null;
-let userAnswers = new Map();
-
-function loadPBQFromScriptTag(){
-  try{
-    const tag = document.getElementById('pbq-data');
-    PBQ = JSON.parse(tag.textContent);
-    renderAll();
-  }catch(err){
-    console.error('Embedded PBQ JSON parse failed:', err);
-    // It's ok if this fails; custom PBQs render regardless.
-  }
-}
-
-/* ---------- Renderer for legacy task types (none used now, but kept for compatibility) ---------- */
-function renderAll(){
-  if(!PBQ) return;
-  $('#pbq_title').textContent = PBQ.pbq_title || '—';
-  $('#lesson').textContent = PBQ.lesson || '—';
-  $('#scenario').textContent = PBQ.scenario || '—';
-  $('#meta').textContent = `${PBQ.difficulty || '—'} • ~${PBQ.estimated_time_minutes || '—'} min`;
-
-  const tasksWrap = $('#tasks');
-  tasksWrap.innerHTML = '';
-
-  (PBQ.tasks || []).forEach(task => {
-    if (task.type === 'multiple_choice') return; // MC not used here
-
-    const card = document.createElement('section');
-    card.className = 'card task';
-    card.dataset.taskId = task.task_id;
-
-    const typeLabel = task.type.replace('_',' ');
-    const title = document.createElement('h3');
-    title.textContent = `Task ${task.task_id} — Reference the Scenario: ${typeLabel}`;
-    card.appendChild(title);
-
-    const prompt = document.createElement('p');
-    prompt.textContent = `Reference the Scenario above: ${task.prompt}`;
-    card.appendChild(prompt);
-
-    if(task.type === 'ordering'){
-      const list = document.createElement('div'); list.className = 'ordering';
-      task.steps.forEach((s, idx)=>{
-        const div = document.createElement('div');
-        div.className = 'draggable';
-        div.draggable = true;
-        div.dataset.index = idx+1;
-        div.textContent = s;
-        list.appendChild(div);
-      });
-      enableDrag(list, task.task_id);
-      card.appendChild(list);
-
-      const result = document.createElement('div'); result.className = 'result'; card.appendChild(result);
-
-      const details = document.createElement('details');
-      const sum = document.createElement('summary'); sum.textContent = 'Rationale';
-      const ans = document.createElement('div'); ans.className = 'answer';
-      ans.textContent = task.correct_order.map(i=>task.steps[i-1]).join(' \u2192 ');
-      details.appendChild(sum); details.appendChild(ans);
-      details.hidden = true;
-      card.appendChild(details);
-    }
-
-    if(task.type === 'fill_in_dropdown'){
-      const p = document.createElement('p');
-      const parts = (task.sentence||'').split('______');
-      parts.forEach((text, idx)=>{
-        p.append(text);
-        if(idx < (task.blanks||[]).length){
-          const sel = document.createElement('select');
-          sel.dataset.blankId = task.blanks[idx].blank_id;
-          const ph = document.createElement('option'); ph.value=''; ph.textContent='— select —'; ph.disabled=true; ph.selected=true; sel.appendChild(ph);
-          task.blanks[idx].choices.forEach(choice=>{
-            const opt = document.createElement('option');
-            opt.value = choice; opt.textContent = choice;
-            sel.appendChild(opt);
-          });
-          sel.addEventListener('change', ()=>{
-            const current = userAnswers.get(task.task_id) || {};
-            current[task.blanks[idx].blank_id] = sel.value;
-            userAnswers.set(task.task_id, current);
-          });
-          p.append(sel);
-        }
-      });
-      card.appendChild(p);
-
-      const result = document.createElement('div'); result.className = 'result'; card.appendChild(result);
-
-      const details = document.createElement('details');
-      const sum = document.createElement('summary'); sum.textContent = 'Rationale';
-      const ans = document.createElement('div'); ans.className = 'answer'; ans.textContent = task.rationale || '';
-      details.appendChild(sum); details.appendChild(ans);
-      details.hidden = true;
-      card.appendChild(details);
-    }
-
-    tasksWrap.appendChild(card);
-  });
-}
-
-/* ---------- Drag + order helpers (legacy) ---------- */
-function enableDrag(container, taskId){
-  let dragEl = null;
-  container.addEventListener('dragstart', e=>{
-    if(e.target.classList.contains('draggable')){
-      dragEl = e.target;
-      e.dataTransfer.effectAllowed='move';
-      e.target.classList.add('dragging');
-    }
-  });
-  container.addEventListener('dragend', ()=>{
-    if(dragEl){ dragEl.classList.remove('dragging'); dragEl = null; }
-    const order = $$('.draggable', container).map(d=>Number(d.dataset.index));
-    userAnswers.set(taskId, {order});
-  });
-  container.addEventListener('dragover', e=>{
-    e.preventDefault();
-    const after = getDragAfterElement(container, e.clientY);
-    const dragging = $('.draggable.dragging', container);
-    if(!dragging) return;
-    if(after == null){ container.appendChild(dragging); }
-    else { container.insertBefore(dragging, after); }
-  });
-}
-function getDragAfterElement(container, y){
-  const els = $$('.draggable:not(.dragging)', container);
-  let closest = {offset: Number.NEGATIVE_INFINITY, element: null};
-  els.forEach(el=>{
-    const box = el.getBoundingClientRect();
-    const offset = y - box.top - box.height/2;
-    if(offset < 0 && offset > closest.offset){ closest = {offset, element: el}; }
-  });
-  return closest.element;
-}
-
-/* ---------- Global grading/feedback shell (legacy tasks) ---------- */
-function checkAnswersLegacy(){
-  (PBQ?.tasks || []).forEach(task=>{
-    if (task.type === 'multiple_choice') return;
-
-    const card = document.querySelector(`.task[data-task-id="${task.task_id}"]`);
-    const result = card?.querySelector('.result');
-    const details = card?.querySelector('details');
-    if(result) result.textContent = '';
-    if(details) details.hidden = true;
-
-    if(task.type === 'ordering'){
-      let order = userAnswers.get(task.task_id)?.order;
-      if(!order){
-        const list = card.querySelector('.ordering');
-        order = Array.from(list.querySelectorAll('.draggable')).map(d=>Number(d.dataset.index));
-      }
-      const ok = JSON.stringify(order) === JSON.stringify(task.correct_order);
-      result.textContent = ok ? 'Correct order ✓' : 'Incorrect order ✗';
-      result.className = 'result ' + (ok ? 'correct' : 'incorrect');
-      if(!ok && details) details.hidden = false;
-      return;
-    }
-
-    if(task.type === 'fill_in_dropdown'){
-      let answers = userAnswers.get(task.task_id) || {};
-      const selects = card.querySelectorAll('select[data-blank-id]');
-      selects.forEach(s => answers[s.dataset.blankId] = s.value);
-      let ok = (task.blanks||[]).every(b => answers[b.blank_id] === b.answer);
-      result.textContent = ok ? 'Correct ✓' : 'Incorrect ✗';
-      result.className = 'result ' + (ok ? 'correct' : 'incorrect');
-      if(!ok && details) details.hidden = false;
-      return;
-    }
-  });
-}
-
 /* =================== PBQ 1: Vulnerability Triage (Kanban) =================== */
 const FINDINGS = [
-  { id:'F1', title:'Public cloud bucket allows listing + read of PII', tags:['Cloud','Exposure'], meta:'Impact: High • Exploit: Live (misconfig)', expect:'NOW',
-    why:'Public data exposure can leak immediately; block public and fix policy now.'},
-  { id:'F2', title:'DB-01: Critical RCE with exploit in the wild (CVSS 9.8)', tags:['Server','Critical'], meta:'Impact: High • Exploit: Yes', expect:'NOW',
-    why:'High-value system with known exploit → emergency patch or compensating control.'},
-  { id:'F3', title:'HR-LAP12: High severity vuln (8.1), PoC only', tags:['Endpoint'], meta:'Impact: Low • Exploit: PoC', expect:'NEXT',
-    why:'Lower business impact + PoC only → fix in sprint after urgent items.'},
-  { id:'F4', title:'WEB-02: Deprecated 3DES still enabled', tags:['Crypto','Config'], meta:'Impact: Medium • Exploit: Weak cipher', expect:'NEXT',
-    why:'Replace deprecated cipher; typically not same-day unless mandated.'},
-  { id:'F5', title:'Legacy backup server on EOL OS (segmented)', tags:['EOL','Legacy'], meta:'Impact: Medium • Segmented', expect:'LATER',
-    why:'Plan upgrade/migration in standard window if properly isolated.'}
+  { id:'F1', title:'Public cloud bucket allows listing + read of PII', tags:['Cloud','Exposure','Misconfig'], meta:'Impact: High • Exposure: Public • Exploit maturity: Live', expect:'NOW',
+    why:'Public data exposure represents immediate risk; apply bucket-level public access block and least-privilege policy now, then verify via re-scan.'},
+  { id:'F2', title:'DB-01 — Critical RCE (CVSS 9.8) with weaponized exploit', tags:['Server','Critical','RCE'], meta:'Impact: High • Exploit: Known in wild', expect:'NOW',
+    why:'High-value system + weaponized exploit → emergency change: patch ASAP or apply compensating controls (WAF/IPS isolation) until patched.'},
+  { id:'F3', title:'HR-LAP12 — High-sev CVE (8.1), PoC only, standard user', tags:['Endpoint','PoC'], meta:'Impact: Low • Exploit: Proof-of-Concept', expect:'NEXT',
+    why:'Lower business impact and only PoC → remediate within sprint; confirm via credentialed endpoint scan.'},
+  { id:'F4', title:'WEB-02 — Deprecated 3DES enabled on TLS', tags:['Crypto','Config'], meta:'Impact: Medium • Weak cipher', expect:'NEXT',
+    why:'Cryptographic hardening needed; schedule cipher suite update in sprint, maintain availability, then re-scan to verify deprecation.'},
+  { id:'F5', title:'Legacy backup host on EOL OS (segmented zone)', tags:['EOL','Legacy','Segmented'], meta:'Impact: Medium • Exposure: Internal-only', expect:'LATER',
+    why:'If properly segmented, plan OS upgrade/migration in the next standard window; add network ACLs as compensating control until replaced.'}
 ];
 
 let KANBAN_STATE = { NOW:[], NEXT:[], LATER:[], POOL:[] };
@@ -545,17 +317,28 @@ function makeFindingCard(f){
 
 function renderKanban(){
   const lanes = { NOW:$('[data-lane="NOW"]'), NEXT:$('[data-lane="NEXT"]'), LATER:$('[data-lane="LATER"]') };
-  Object.values(lanes).forEach(l=> l.querySelectorAll('.finding').forEach(el=>el.remove()));
-  $('#pool').innerHTML = '';
+
+  // Clear all existing finding cards and old ghost hints
+  Object.values(lanes).forEach(l=>{
+    l.querySelectorAll('.finding, .ghost').forEach(el=>el.remove());
+  });
+
+  // Render findings into lanes
   for(const lane of ['NOW','NEXT','LATER']){
+    KANBAN_STATE[lane].forEach(f => lanes[lane].appendChild(makeFindingCard(f)));
+    // Add hint only if empty AFTER rendering
     if(!KANBAN_STATE[lane].length){
       const ghost = document.createElement('div');
-      ghost.className='muted'; ghost.style.fontStyle='italic'; ghost.textContent='Drag here';
+      ghost.className='ghost';
+      ghost.textContent='Drag here';
       lanes[lane].appendChild(ghost);
     }
-    KANBAN_STATE[lane].forEach(f => lanes[lane].appendChild(makeFindingCard(f)));
   }
-  KANBAN_STATE.POOL.forEach(f => $('#pool').appendChild(makeFindingCard(f)));
+
+  // Render pool
+  const pool = $('#pool');
+  pool.innerHTML = '';
+  KANBAN_STATE.POOL.forEach(f => pool.appendChild(makeFindingCard(f)));
 }
 
 function setupDnd(){
@@ -597,14 +380,14 @@ function gradeKanban(){
 
 /* =================== PBQ 4: Scan Strategy Matrix =================== */
 const ASSETS = [
-  { name:'DMZ Web Server', ctx:'Customer-facing, change-prone', expectType:'Credentialed', expectCadence:'Weekly',
-    why:'Credentialed checks confirm patches/configs; internet exposure → frequent.'},
-  { name:'Finance DB', ctx:'High impact, restricted window', expectType:'Credentialed', expectCadence:'Weekly',
-    why:'Critical data; depth matters to detect misconfig/missing patches.'},
-  { name:'Partner API Gateway', ctx:'Internet-accessible, rate-limited', expectType:'Non-credentialed', expectCadence:'Daily',
-    why:'Perimeter view to catch exposed vulns; lightweight but frequent scans.'},
-  { name:'EOL Backup Host (segmented)', ctx:'Legacy, isolated segment', expectType:'Credentialed', expectCadence:'Bi-weekly',
-    why:'Deeper inspection for compensating controls; slightly lower cadence if isolated.'}
+  { name:'DMZ Web Server', ctx:'Internet-facing; frequent releases; SLA-sensitive', expectType:'Credentialed', expectCadence:'Weekly',
+    why:'Credentialed scans validate patch levels and hardening; public exposure merits frequent cycles (weekly) with verification via re-scan.'},
+  { name:'Finance DB', ctx:'High confidentiality/integrity; narrow maintenance windows', expectType:'Credentialed', expectCadence:'Weekly',
+    why:'Deeper checks catch missing patches/config drift; schedule within approved windows; verify via re-scan before closure.'},
+  { name:'Partner API Gateway', ctx:'Perimeter control; rate-limited; third-party clients', expectType:'Non-credentialed', expectCadence:'Daily',
+    why:'External, attacker’s-eye coverage catches exposed vulns quickly with light impact; pair with periodic credentialed scans off-hours.'},
+  { name:'EOL Backup Host (segmented)', ctx:'Legacy OS; isolated network segment; migration planned', expectType:'Credentialed', expectCadence:'Bi-weekly',
+    why:'Credentialed depth supports compensating controls and migration planning; lower cadence acceptable due to segmentation.'}
 ];
 const TYPES = ['Credentialed','Non-credentialed'];
 const CAD   = ['Daily','Weekly','Bi-weekly','Monthly'];
@@ -646,13 +429,10 @@ function gradeScanMatrix(){
 
 /* =================== Global Check/Reset =================== */
 function checkAll(){
-  checkAnswersLegacy();     // (no-ops if no legacy tasks)
   gradeKanban();
   gradeScanMatrix();
 }
 function resetAll(){
-  userAnswers.clear();
-  renderAll();
   initKanban();
   renderScanMatrix();
   // clear results
@@ -661,7 +441,6 @@ function resetAll(){
 }
 
 window.addEventListener('DOMContentLoaded', ()=>{
-  loadPBQFromScriptTag();
   initKanban();
   renderScanMatrix();
   document.getElementById('btnCheck')?.addEventListener('click', checkAll);
