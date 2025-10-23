@@ -95,7 +95,10 @@
 
 <script>
 // --- Data model (Lesson 8) ---------------------------------------------------
+// Kept 1 foundational original (Q1). Replaced the other 14 with your items.
+// Added per-choice feedback where helpful.
 const BANK = [
+  // --- Original kept (1 of 15) ---
   {
     q: "What is the primary purpose of vulnerability management?",
     options: [
@@ -105,161 +108,188 @@ const BANK = [
       "Replacing legacy systems with cloud services"
     ],
     a: 1,
-    why: "Lesson 8 defines vulnerability management as a continuous cycle of identification, evaluation, treatment, and reporting across OS, apps, and other components."
+    why: "Vulnerability management is a continuous lifecycle: identify → assess → treat (patch/config/compensate) → report/verify.",
+    feedback: {
+      A: "Encryption helps confidentiality but is not the definition of vulnerability management.",
+      C: "Blocking ports is a single hardening action, not a full management process.",
+      D: "Replacing systems can be a treatment path, but it’s not the definition."
+    }
+  },
+
+  // --- Your 14 replacements ---
+  {
+    q: "An organization continues to use a custom-built accounting software from the 1990s because replacing it would be too expensive. The vendor still provides security patches, but the technology is outdated and incompatible with modern systems. How is this system best described?",
+    options: ["Zero-day system","End-of-Life (EOL) system","Misconfigured system","Legacy system"],
+    a: 3,
+    why: "A legacy system is old/outdated but still supported; EOL means no vendor patches. This scenario explicitly says patches still exist.",
+    feedback: {
+      A: "Zero-day refers to an unknown/unpatched vulnerability, not to the age of a system.",
+      B: "EOL means no vendor support/patches; here, the vendor still provides patches.",
+      C: "Nothing indicates a configuration error; the issue is age/compatibility."
+    }
   },
   {
-    q: "Why are EOL (end-of-life) systems high risk?",
+    q: "A penetration tester discovers they can escape from a virtual machine and access the underlying host operating system. What type of vulnerability has been exploited?",
+    options: ["Resource reuse","Hypervisor misconfiguration","Firmware vulnerability","VM escape"],
+    a: 3,
+    why: "A VM escape breaks isolation and lets code in a guest impact the host/hypervisor or other guests.",
+    feedback: {
+      A: "Resource reuse is a separate flaw (e.g., uninitialized memory reuse).",
+      B: "Misconfiguration can contribute, but the described outcome is specifically a VM escape.",
+      C: "Firmware issues live below the OS; this is a virtualization boundary failure."
+    }
+  },
+  {
+    q: "What is the primary characteristic of a zero-day vulnerability?",
     options: [
-      "They are always air-gapped by default",
-      "They receive no vendor patches or support, leaving new CVEs unaddressed",
-      "They only run on mobile hardware",
-      "They require HSMs for key storage"
+      "It can only be exploited by nation-state actors with advanced resources.",
+      "It affects millions of devices simultaneously upon release.",
+      "It is a flaw unknown to the software vendor, who has had 'zero days' to fix it.",
+      "It specifically targets end-of-life (EOL) systems that no longer receive patches."
+    ],
+    a: 2,
+    why: "Zero-day = unknown to the vendor (no patch yet). It’s about disclosure/awareness, not who exploits it or how many devices.",
+    feedback: {
+      A: "Any capable attacker may exploit a zero-day; nation-states are not required.",
+      B: "Impact scope varies; zero-day status is not defined by scale.",
+      D: "EOL status is unrelated; zero-days can affect supported products."
+    }
+  },
+  {
+    q: "An attacker crafts a URL that, when clicked by a user, injects malicious script into the web page returned by a trusted site. The script then executes in the user's browser. What kind of attack is this?",
+    options: ["SQL Injection (SQLi)","Malicious Update","Cross-Site Scripting (XSS)","Buffer Overflow"],
+    a: 2,
+    why: "XSS injects client-side script that runs in the victim’s browser with the site’s trust context.",
+    feedback: {
+      A: "SQLi targets backend databases via SQL; this prompt describes script in the browser.",
+      B: "A malicious update is a supply-chain issue, not client-side script injection.",
+      D: "Buffer overflows corrupt memory; this is about injected script execution."
+    }
+  },
+  {
+    q: "A developer needs to create a comprehensive inventory of all third-party libraries and components used in their software application to identify potential supply chain risks. What is this inventory called?",
+    options: ["Vulnerability Feed","Penetration Test Report","Software Bill of Materials (SBOM)","Common Vulnerabilities and Exposures (CVE) list"],
+    a: 2,
+    why: "An SBOM lists all components and versions, enabling rapid impact analysis when a dependency is found vulnerable.",
+    feedback: {
+      A: "A vuln feed lists vulnerabilities, not your app’s components.",
+      B: "A pen test report documents test findings, not your dependency inventory.",
+      D: "CVE is an identifier catalog for vulnerabilities, not your component list."
+    }
+  },
+  {
+    q: "An organization wants to gain visibility into how employees are using cloud services and enforce security policies like single sign-on and malware scanning for cloud applications. Which technology is designed for this purpose?",
+    options: ["Security Information and Event Management (SIEM)","Cloud Access Security Broker (CASB)","Web Application Firewall (WAF)","Network Vulnerability Scanner"],
+    a: 1,
+    why: "A CASB governs and monitors cloud app use (visibility, policy enforcement, DLP, malware checks, SSO integrations).",
+    feedback: {
+      A: "A SIEM aggregates/logs events; it does not broker or enforce SaaS policies inline.",
+      C: "A WAF protects web apps from HTTP-layer attacks, not overall SaaS usage.",
+      D: "A scanner finds vulnerabilities; it doesn’t broker SaaS access/policies."
+    }
+  },
+  {
+    q: "What is the primary difference between a credentialed and a non-credentialed vulnerability scan?",
+    options: [
+      "Credentialed scans look for network vulnerabilities, while non-credentialed scans look for application vulnerabilities.",
+      "Credentialed scans can log into systems for in-depth analysis, while non-credentialed scans test from an unprivileged network perspective.",
+      "Credentialed scans are automated, while non-credentialed scans are manual.",
+      "Credentialed scans use open-source tools, while non-credentialed scans use proprietary tools."
     ],
     a: 1,
-    why: "Vendors stop shipping security fixes for EOL products (e.g., Windows 7/Server 2008), so new vulnerabilities remain exposed."
+    why: "Credentialed scans authenticate to hosts for deeper checks (patch/config); non-credentialed emulate the external/unauth’d view.",
+    feedback: {
+      A: "Both can assess network and app facets; the key difference is authentication depth.",
+      C: "Both can be automated; manual vs automated is not the distinction.",
+      D: "Tool licensing is unrelated to credential level."
+    }
   },
   {
-    q: "Which example best illustrates a firmware-level risk?",
-    options: [
-      "Cookie theft via XSS",
-      "UEFI persistence like LoJax surviving OS reinstalls",
-      "Weak password policy on a SaaS app",
-      "DHCP starvation"
-    ],
-    a: 1,
-    why: "Firmware/UEFI malware (e.g., LoJax) can persist beyond OS reimaging, representing deep, high-impact compromise."
-  },
-  {
-    q: "In virtualization, what does a VM escape enable?",
-    options: [
-      "Guest code to access the host/hypervisor or other VMs",
-      "Snapshots to be taken more frequently",
-      "Automatic key rotation",
-      "Hot-add of NICs without downtime"
-    ],
+    q: "The Heartbleed bug was a severe vulnerability in the OpenSSL cryptographic library, allowing attackers to read a system's memory and compromise secret keys. What type of vulnerability does this represent?",
+    options: ["Cryptographic vulnerability","Operating System vulnerability","Firmware vulnerability","Misconfiguration vulnerability"],
     a: 0,
-    why: "A VM escape breaks isolation, allowing guest-to-host or guest-to-guest compromise."
+    why: "Heartbleed was in OpenSSL (crypto library), exposing memory and potentially private keys—classic cryptographic implementation flaw.",
+    feedback: {
+      B: "It’s in a library, not the OS kernel or platform itself.",
+      C: "Firmware is below the OS; OpenSSL runs in user space.",
+      D: "Misconfiguration wasn’t the root cause; it was a code flaw."
+    }
   },
   {
-    q: "What characterizes a zero-day vulnerability?",
-    options: [
-      "No known exploit code exists",
-      "Vendors have zero days to patch once disclosed; it’s unknown/unsolved at first",
-      "It only affects legacy OS versions",
-      "It is always a misconfiguration"
-    ],
+    q: "The process of installing applications on an Android device from sources other than the official Google Play Store is known as what?",
+    options: ["Rooting","Sideloading","Jailbreaking","Patching"],
     a: 1,
-    why: "Zero-days are unknown to the vendor at time of exploitation/disclosure, creating a race to patch."
+    why: "Sideloading = installing apps from outside the official store. (Rooting/jailbreaking elevate privileges.)",
+    feedback: {
+      A: "Rooting is privilege escalation on Android, not just installing from outside the store.",
+      C: "Jailbreaking is the iOS term for privilege escalation.",
+      D: "Patching updates software; it’s unrelated to installation source."
+    }
   },
   {
-    q: "Which is the MOST common root cause of breaches in cloud storage (e.g., buckets)?",
-    options: [
-      "Fiber cuts",
-      "Misconfigurations exposing data publicly",
-      "Quantum cracking of TLS",
-      "Power failures in a region"
-    ],
-    a: 1,
-    why: "Lesson 8 emphasizes misconfiguration (overly permissive access) as a frequent cloud risk."
+    q: "A security team uses a vulnerability scanner and receives a report indicating a critical vulnerability on a server. Upon investigation, they discover the server is not running the software associated with the vulnerability. What has occurred?",
+    options: ["A true positive","A false negative","A false positive","A true negative"],
+    a: 2,
+    why: "The scanner reported a vuln that does not actually exist on the host → false positive.",
+    feedback: {
+      A: "True positive means the finding is real; it wasn’t.",
+      B: "False negative means a real issue was missed; here, the issue wasn’t real.",
+      D: "True negative means correctly no issue; the scanner did flag one."
+    }
   },
   {
-    q: "Which scenario best demonstrates a cryptographic vulnerability?",
+    q: "A vulnerability is discovered in a critical system, but a patch is not yet available. To reduce the risk, the security team places the system on an isolated network segment with stricter firewall rules. This mitigation strategy is an example of a what?",
+    options: ["Exception","Re-scan","Patch","Compensating control"],
+    a: 3,
+    why: "A compensating control reduces risk when the primary fix (patch) isn’t yet possible—e.g., isolation, ACLs, IPS rules.",
+    feedback: {
+      A: "An exception documents deviation; it doesn’t mitigate by itself.",
+      B: "Re-scanning verifies fixes; it doesn’t mitigate.",
+      C: "There is no patch yet—that’s why a compensating control is used."
+    }
+  },
+  {
+    q: "The Common Vulnerability Scoring System (CVSS) is used for what primary purpose in vulnerability management?",
     options: [
-      "Using 3DES long after deprecation (Sweet32 risk)",
-      "Disabling HTTP/2",
-      "Using VLANs for segmentation",
-      "Turning on DoH in browsers"
+      "To provide a unique identifier for each vulnerability, like CVE-2022-1234.",
+      "To automatically deploy patches to affected systems across an enterprise.",
+      "To catalog the components and dependencies within a software application.",
+      "To rate the severity of vulnerabilities and help prioritize remediation efforts."
     ],
+    a: 3,
+    why: "CVSS provides standardized severity scoring to support prioritization (often combined with exploit maturity and business impact).",
+    feedback: {
+      A: "CVE provides identifiers; CVSS provides severity scoring.",
+      B: "Patch deployment tools do that; CVSS does not deploy patches.",
+      C: "Cataloging components is the SBOM’s job."
+    }
+  },
+  {
+    q: "What is a primary benefit of implementing a bug bounty program?",
+    options: [
+      "It guarantees that no vulnerabilities will be found by malicious actors.",
+      "It provides a predictable, fixed cost for a comprehensive security audit.",
+      "It leverages a diverse and global community of security researchers to find vulnerabilities.",
+      "It replaces the need for automated vulnerability scanning and internal testing."
+    ],
+    a: 2,
+    why: "Bug bounties crowdsource security testing to a broad researcher community, often uncovering issues traditional testing misses.",
+    feedback: {
+      A: "No program can guarantee zero findings by attackers.",
+      B: "Costs vary with submissions/payouts; not strictly fixed.",
+      D: "Bounties complement—not replace—scanners and internal testing."
+    }
+  },
+  {
+    q: "A time-of-check to time-of-use (TOCTOU) vulnerability is a specific type of which broader category of application flaw?",
+    options: ["Race condition","SQL injection","Cryptographic vulnerability","Buffer overflow"],
     a: 0,
-    why: "Deprecated algorithms/cipher suites (e.g., 3DES) and known issues (Sweet32) increase exposure."
-  },
-  {
-    q: "What practice most effectively protects encryption keys at rest in an enterprise?",
-    options: [
-      "Storing keys in a text file on a jump box",
-      "Emailing keys to administrators for backup",
-      "Using HSMs or a centralized KMS with strict access controls and rotation",
-      "Embedding keys in source code"
-    ],
-    a: 2,
-    why: "Hardware Security Modules / managed KMS, plus rotation and access control, are best practice."
-  },
-  {
-    q: "On mobile platforms, which user action significantly elevates risk for organizations?",
-    options: [
-      "Enabling dark mode",
-      "Jailbreaking/Rooting and sideloading apps with excessive permissions",
-      "Pairing Bluetooth headphones",
-      "Using airplane mode"
-    ],
-    a: 1,
-    why: "Rooting/Jailbreaking and sideloading bypass platform protections and allow unvetted code/permissions."
-  },
-  {
-    q: "Which attack targets a web app by injecting client-side script that runs in the victim’s browser?",
-    options: [
-      "SQL injection",
-      "Cross-Site Scripting (XSS)",
-      "SMB relay",
-      "DNS cache poisoning"
-    ],
-    a: 1,
-    why: "XSS injects script that executes in the browser with the site’s trust context."
-  },
-  {
-    q: "Which CASB deployment forwards client traffic at the enterprise edge and inspects it before the cloud?",
-    options: [
-      "Reverse proxy",
-      "Inline WAF",
-      "Forward proxy",
-      "API-mode only"
-    ],
-    a: 2,
-    why: "A forward proxy sits on the client side; reverse proxy sits on the provider side; API mode brokers via service APIs."
-  },
-  {
-    q: "What is an SBOM primarily used for?",
-    options: [
-      "Documenting VLAN assignments",
-      "Inventorying all software components and versions to track vulnerable dependencies",
-      "Cataloging IP addresses of a subnet",
-      "Scheduling patch windows"
-    ],
-    a: 1,
-    why: "A Software Bill of Materials lists first/third-party components to quickly assess and remediate vulnerable dependencies."
-  },
-  {
-    q: "Credentialed vs. non-credentialed scanning: which pairing is accurate?",
-    options: [
-      "Credentialed = outside-in internet view; Non-credentialed = insider view",
-      "Credentialed = deeper config/patch checks with auth; Non-credentialed = unauthenticated external perspective",
-      "Both require domain admin",
-      "Neither can detect missing patches"
-    ],
-    a: 1,
-    why: "Credentialed scans log in for richer findings; non-credentialed emulate what an unauth’d observer sees."
-  },
-  {
-    q: "Pen test knowledge models: which is correctly matched?",
-    options: [
-      "Unknown (black-box) = tester has full diagrams and creds",
-      "Known (white-box) = tester has full internal details",
-      "Partially known (gray-box) = tester has no information",
-      "All pen tests forbid exploitation"
-    ],
-    a: 1,
-    why: "White-box (known) provides full info; black-box (unknown) provides none; gray-box provides some."
-  },
-  {
-    q: "After a scan finds critical CVEs, what is the BEST next step in a mature process?",
-    options: [
-      "Publicly disclose the findings to motivate the team",
-      "Delay until the next quarterly window",
-      "Prioritize by impact/exploitability, apply patches or compensating controls, then re-scan to verify",
-      "Reboot affected hosts only"
-    ],
-    a: 2,
-    why: "Lesson 8 stresses analysis → prioritized remediation (patch/config/replace/compensating control) → verification via re-scan."
+    why: "TOCTOU is a race condition: state changes between validation (check) and consumption (use).",
+    feedback: {
+      B: "SQL injection targets query construction, not timing/state races.",
+      C: "Crypto flaws are unrelated to timing-of-check/use logic.",
+      D: "Buffer overflows are memory safety issues, not timing races."
+    }
   }
 ];
 
@@ -378,8 +408,15 @@ function gradeOne(qi){
   card.classList.add(isCorrect ? 'correct' : 'incorrect');
   const your = String.fromCharCode(65+choice);
   const key = String.fromCharCode(65+q.a);
+
+  // Per-choice feedback support
+  let extra = '';
+  if(!isCorrect && q.feedback){
+    extra = q.feedback[your] ? `<br><em>${q.feedback[your]}</em>` : '';
+  }
+
   fb.innerHTML = `${isCorrect ? '✅ Correct' : '❌ Incorrect'} — Your answer: <strong>${your}</strong>. Correct answer: <strong class="akey">${key}</strong>.
-    <br>${q.why}`;
+    <br>${q.why}${extra}`;
   updateScore();
 }
 
