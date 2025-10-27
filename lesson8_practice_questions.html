@@ -64,10 +64,10 @@
 <main>
   <section class="card">
     <h2>Instructions</h2>
-    <p>Answer each question, then choose <strong>Check</strong> to see immediate feedback and an explanation. Use <strong>Check All</strong> to grade everything at once, <strong>Shuffle</strong> to change the order, and <strong>Reset</strong> to clear your selections. Aligned to Lesson 8: device/OS, application &amp; cloud vulnerabilities, scanning methods, analysis &amp; remediation.</p>
+    <p>Answer each question, then choose <strong>Check</strong> to see immediate feedback and an explanation. Use <strong>Check All</strong> to grade everything at once, <strong>Shuffle</strong> to change the order (for the 15 currently shown), and <strong>Reset</strong> to load the next set of 15 questions.</p>
     <div class="controls">
       <button class="primary" id="btnCheckAll" type="button" aria-label="Check all questions">Check All</button>
-      <button id="btnReset" type="button">Reset</button>
+      <button id="btnReset" type="button">Reset (Next 15)</button>
       <button id="btnShuffle" type="button" class="ghost">Shuffle</button>
     </div>
   </section>
@@ -95,8 +95,6 @@
 
 <script>
 // --- Data model (Lesson 8) ---------------------------------------------------
-// Kept 1 foundational original (Q1). Replaced the other 14 with your items.
-// Added per-choice feedback where helpful.
 const BANK = [
   // --- Original kept (1 of 15) ---
   {
@@ -116,7 +114,7 @@ const BANK = [
     }
   },
 
-  // --- Your 14 replacements ---
+  // --- Previously added 14 ---
   {
     q: "An organization continues to use a custom-built accounting software from the 1990s because replacing it would be too expensive. The vendor still provides security patches, but the technology is outdated and incompatible with modern systems. How is this system best described?",
     options: ["Zero-day system","End-of-Life (EOL) system","Misconfigured system","Legacy system"],
@@ -290,10 +288,127 @@ const BANK = [
       C: "Crypto flaws are unrelated to timing-of-check/use logic.",
       D: "Buffer overflows are memory safety issues, not timing races."
     }
+  },
+
+  // --- YOUR NEW 7 QUESTIONS (added to the bank) ---
+  {
+    q: "Which of the following best describes an End-of-Life (EOL) system?",
+    options: [
+      "A system that is brand new and receives regular updates",
+      "A system that no longer receives vendor support or security patches",
+      "A system that is physically damaged but still in use",
+      "A system that has reached its maximum memory capacity"
+    ],
+    a: 1,
+    why: "EOL means the vendor has stopped support and patching, increasing risk.",
+    feedback: {
+      A: "That’s the opposite of EOL.",
+      C: "Physical damage isn’t what defines EOL.",
+      D: "Memory capacity doesn’t determine support status."
+    }
+  },
+  {
+    q: "Why are legacy systems still used in many organizations despite their vulnerabilities?",
+    options: [
+      "Because they are the most secure systems available",
+      "Because replacing them can be costly and complex",
+      "Because vendors continue to update them regularly",
+      "Because they are incompatible with business functions"
+    ],
+    a: 1,
+    why: "Cost, complexity, and operational disruption often keep legacy systems in place.",
+    feedback: {
+      A: "Legacy systems are generally less secure, not more.",
+      C: "Many are no longer updated or are minimally supported.",
+      D: "They’re kept because they still support needed functions."
+    }
+  },
+  {
+    q: "What is “jailbreaking” in the context of mobile security?",
+    options: [
+      "Encrypting your phone’s data for extra protection",
+      "Gaining full access to a device by removing OS restrictions",
+      "Updating your device’s firmware",
+      "Installing apps from the official store only"
+    ],
+    a: 1,
+    why: "Jailbreaking (iOS) removes OS restrictions, granting full control but bypassing protections.",
+    feedback: {
+      A: "Encryption improves security; jailbreaking reduces safeguards.",
+      C: "Firmware updates are legitimate maintenance.",
+      D: "Jailbreaking enables unauthorized installs, not official-only."
+    }
+  },
+  {
+    q: "What is a key danger of “sideloading” applications?",
+    options: [
+      "It requires too much internet bandwidth",
+      "Apps from unofficial sources may contain malware",
+      "It automatically deletes security certificates",
+      "It prevents app updates"
+    ],
+    a: 1,
+    why: "Unofficial sources lack store vetting; malware risk is higher.",
+    feedback: {
+      A: "Bandwidth isn’t the risk factor.",
+      C: "Sideloading doesn’t auto-delete certs.",
+      D: "Some sideloaded apps can still be updated manually."
+    }
+  },
+  {
+    q: "Which method helps mitigate buffer overflow attacks?",
+    options: [
+      "Disabling antivirus",
+      "Using type-safe programming languages and ASLR",
+      "Increasing buffer size only",
+      "Disabling memory protection features"
+    ],
+    a: 1,
+    why: "Type-safe languages and ASLR complicate exploitation and prevent unsafe memory use.",
+    feedback: {
+      A: "That weakens security.",
+      C: "Bigger buffers don’t eliminate overflows.",
+      D: "Disabling protections increases risk."
+    }
+  },
+  {
+    q: "What is one reason legacy devices remain particularly vulnerable?",
+    options: [
+      "They have up-to-date encryption protocols",
+      "Their firmware is no longer supported by vendors",
+      "They are only used in secure environments",
+      "They block all network access"
+    ],
+    a: 1,
+    why: "Unsupported firmware means no new patches or fixes.",
+    feedback: {
+      A: "Often the opposite: older, weaker crypto.",
+      C: "Many aren’t isolated.",
+      D: "They’re often still networked for operations."
+    }
+  },
+  {
+    q: "What is the best long-term approach to dealing with EOL systems?",
+    options: [
+      "Continue using them indefinitely",
+      "Replace or update them before they reach EOL status",
+      "Disconnect them from the internet and ignore them",
+      "Use pirated versions of newer software"
+    ],
+    a: 1,
+    why: "Proactively refresh before EOL to maintain support and patching.",
+    feedback: {
+      A: "Risk keeps growing over time.",
+      C: "Isolation can be temporary, not a strategy.",
+      D: "Illegal and insecure."
+    }
   }
 ];
 
-// --- State -------------------------------------------------------------------
+// --- State / Paging ----------------------------------------------------------
+const PAGE_SIZE = 15;          // always show 15 questions
+let cycleIndex = 0;            // advances by 15 on each Reset
+
 let QUESTIONS = [];
 const qWrap = document.getElementById('qWrap');
 const results = document.getElementById('results');
@@ -310,8 +425,19 @@ function shuffle(arr){
   return arr;
 }
 
+// slice 15, with wraparound if needed
+function getSlice(start, size){
+  const total = BANK.length;
+  const out = [];
+  for(let i=0;i<size;i++){
+    out.push(BANK[(start + i) % total]);
+  }
+  return out;
+}
+
 function reset(){
-  QUESTIONS = BANK.map((q, idx) => ({...q, id: idx+1}));
+  QUESTIONS = getSlice(cycleIndex, PAGE_SIZE).map((q, idx) => ({...q, id: idx+1}));
+  cycleIndex = (cycleIndex + PAGE_SIZE) % BANK.length; // advance to next “page” for next Reset
   render();
   results.hidden = true;
   scoreProg.max = QUESTIONS.length;
@@ -373,7 +499,6 @@ function render(){
     fb.id = `fb${qi}`;
 
     ctrls.appendChild(btnCheck); ctrls.appendChild(btnClear);
-
     body.appendChild(opts);
     body.appendChild(ctrls);
     body.appendChild(fb);
@@ -409,7 +534,6 @@ function gradeOne(qi){
   const your = String.fromCharCode(65+choice);
   const key = String.fromCharCode(65+q.a);
 
-  // Per-choice feedback support
   let extra = '';
   if(!isCorrect && q.feedback){
     extra = q.feedback[your] ? `<br><em>${q.feedback[your]}</em>` : '';
